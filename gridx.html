@@ -1,0 +1,4507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRIDX — Next-Gen Electrical Engineering Control System</title>
+  
+  <!-- Engineering Fonts: Rajdhani for Displays, JetBrains Mono for SCADA Telemetry, Plus Jakarta Sans for UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN for SCADA Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       GRIDX NEXT-GEN DARK GRAPHITE DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      /* Dark Graphite Core Palettes */
+      --bg-base: #070b12;             /* Deepest graphite black */
+      --bg-surface: #0c121e;          /* Secondary dark graphite */
+      --bg-panel: #111a2c;            /* Control panel graphite */
+      --bg-card: #152238;             /* Telemetry card surface */
+      --bg-card-hover: #1a2a46;
+      
+      /* Subtle Structural Borders */
+      --border-panel: #1e2e4a;
+      --border-card: rgba(148, 163, 184, 0.12);
+      --border-accent: rgba(0, 240, 255, 0.35);
+      
+      /* Functional Technical Accents */
+      --cyan: #00f0ff;                /* Electric Cyan */
+      --cyan-dim: rgba(0, 240, 255, 0.15);
+      --cyan-glow: 0 0 14px rgba(0, 240, 255, 0.35);
+      --blue: #2563eb;                /* Technical Deep Blue */
+      --purple: #8b5cf6;              /* Violet Accent */
+      --emerald: #10b981;             /* Renewable Green */
+      --amber: #f59e0b;               /* Warning Amber */
+      --red: #ef4444;                 /* Critical Relay Red */
+      
+      /* Precision Typography Colors */
+      --text-bright: #f8fafc;
+      --text-main: #e2e8f0;
+      --text-muted: #8494ab;
+      --text-dim: #4d5f78;
+      
+      /* Font Definitions */
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-display: 'Rajdhani', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Dimensions & Radii */
+      --sidebar-width: 260px;
+      --header-height: 68px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, #070b12 0%, #0c121e 100%);
+      background-size: 28px 28px, 100% 100%;
+      background-attachment: fixed;
+    }
+
+    /* Precision Technical Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: #1e2e4a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+    .font-mono { font-family: var(--font-mono); }
+    .font-display { font-family: var(--font-display); }
+
+    /* Layout Frame */
+    .command-layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* SIDEBAR NAVIGATION */
+    .cmd-sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-panel);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 100;
+      transition: transform 0.28s ease;
+    }
+
+    .brand-header-box {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-panel);
+      gap: 12px;
+      text-decoration: none;
+      background: rgba(7, 11, 18, 0.6);
+    }
+
+    .brand-logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(37, 99, 235, 0.25));
+      border: 1px solid var(--border-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--cyan-glow);
+    }
+
+    .brand-logo-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--cyan);
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .brand-text-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .brand-name span {
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+    }
+
+    .brand-subtext {
+      font-size: 9px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .nav-scroller {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-dim);
+      padding: 14px 10px 6px;
+    }
+
+    .nav-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: var(--transition-fast);
+      border: 1px solid transparent;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .nav-link-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .nav-link-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-link-btn.active {
+      color: var(--cyan);
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.12), rgba(0, 240, 255, 0.02));
+      border-color: rgba(0, 240, 255, 0.3);
+      border-left: 3px solid var(--cyan);
+      font-weight: 700;
+    }
+
+    .nav-link-btn.active svg {
+      stroke: var(--cyan);
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4));
+    }
+
+    .nav-pill-badge {
+      margin-left: auto;
+      font-size: 9px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .sidebar-credits-box {
+      padding: 16px;
+      border-top: 1px solid var(--border-panel);
+      background: var(--bg-base);
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .sidebar-credits-box strong {
+      color: var(--text-bright);
+    }
+
+    /* TECHNICAL COMMAND TOPBAR */
+    .viewport-container {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      position: relative;
+    }
+
+    .cmd-topbar {
+      height: var(--header-height);
+      background: rgba(12, 18, 30, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-nav-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-panel);
+      color: var(--text-bright);
+      padding: 7px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .mobile-nav-toggle svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .topbar-title-meta h1 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .topbar-title-meta p {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--emerald);
+    }
+
+    .status-indicator-badge.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: var(--amber);
+    }
+
+    .status-indicator-badge.critical {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--red);
+    }
+
+    .pulsing-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    .topbar-meta-chip {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-bright);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-panel);
+    }
+
+    .cmd-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      border: 1px solid var(--border-panel);
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .cmd-btn:hover {
+      border-color: var(--cyan);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    .cmd-btn-primary {
+      background: rgba(0, 240, 255, 0.12);
+      border-color: rgba(0, 240, 255, 0.4);
+      color: var(--cyan);
+    }
+
+    .cmd-btn-primary:hover {
+      background: rgba(0, 240, 255, 0.22);
+      border-color: var(--cyan);
+    }
+
+    .cmd-btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: var(--red);
+    }
+
+    .cmd-btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* VIEWPORT CONTENT & PANELS */
+    .cmd-content {
+      flex: 1;
+      padding: 24px 28px;
+      max-width: 1680px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-page {
+      display: none;
+      animation: pageReveal 0.22s ease-out;
+    }
+
+    .view-page.active {
+      display: block;
+    }
+
+    @keyframes pageReveal {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-headline-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-panel);
+    }
+
+    .section-headline-bar h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+    }
+
+    .section-headline-bar h2 svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--cyan);
+    }
+
+    .section-headline-bar p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .graphite-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.04), 0 4px 16px rgba(0, 0, 0, 0.4);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .graphite-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .graphite-panel-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .graphite-panel-title svg {
+      width: 15px;
+      height: 15px;
+      stroke: var(--cyan);
+    }
+
+    /* KPI METRIC MATRIX */
+    .metric-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .metric-module-tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 124px;
+      transition: var(--transition-fast);
+      position: relative;
+    }
+
+    .metric-module-tile:hover {
+      border-color: rgba(0, 240, 255, 0.35);
+      background: var(--bg-card-hover);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .tile-label-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tile-tag-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .tile-val-block {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 8px 0 4px 0;
+    }
+
+    .tile-big-num {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+
+    .tile-unit-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .tile-footer-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .tech-badge {
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-cyan { background: rgba(0, 240, 255, 0.12); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.12); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.12); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-red { background: rgba(239, 68, 68, 0.12); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-blue { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.35); }
+
+    /* Layout Grids */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-2col-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .chart-container-box {
+      position: relative;
+      width: 100%;
+      height: 250px;
+    }
+
+    .chart-container-lg {
+      position: relative;
+      width: 100%;
+      height: 300px;
+    }
+
+    .tech-disclaimer-strip {
+      background: rgba(30, 46, 74, 0.4);
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tech-disclaimer-strip svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    /* POWER FLOW SCHEMATIC */
+    .flow-schematic-stage {
+      background: #090e18;
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-md);
+      position: relative;
+      height: 520px;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .flow-node-box {
+      position: absolute;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-panel);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      min-width: 142px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      transition: var(--transition-fast);
+      z-index: 5;
+    }
+
+    .flow-node-box:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .node-title-lbl {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .node-kw-display {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    .flow-canvas-svg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .flow-wire-underlay {
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .flow-wire-active {
+      stroke-width: 3;
+      fill: none;
+      stroke-dasharray: 8 8;
+      animation: energyParticles 1.2s linear infinite;
+    }
+
+    @keyframes energyParticles {
+      to { stroke-dashoffset: -16; }
+    }
+
+    .flow-telemetry-badge {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 4px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-panel);
+      color: var(--cyan);
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    /* BMS RING GAUGE */
+    .bms-soc-ring-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .soc-circular-widget {
+      width: 180px;
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .soc-svg-frame {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .soc-gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.07);
+      stroke-width: 14;
+    }
+
+    .soc-gauge-progress {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 471;
+      stroke-dashoffset: 122;
+      transition: stroke-dashoffset 0.6s ease, stroke 0.3s;
+      filter: drop-shadow(0 0 6px var(--cyan));
+    }
+
+    .soc-center-readout {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .soc-main-pct {
+      font-family: var(--font-mono);
+      font-size: 38px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .soc-mode-lbl {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--cyan);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    .cell-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .cell-module-pod {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cell-pod-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .cell-led-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 6px var(--emerald);
+    }
+
+    .cell-charge-bar-track {
+      height: 32px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .cell-charge-bar-fill {
+      width: 100%;
+      background: linear-gradient(to top, var(--blue), var(--cyan));
+      transition: height 0.5s ease;
+    }
+
+    /* EV STATIONS */
+    .ev-bays-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .ev-bay-console {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: var(--transition-fast);
+    }
+
+    .ev-bay-console.smart-throttled {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.04);
+    }
+
+    .ev-bay-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ev-bay-id {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--cyan);
+    }
+
+    .ev-power-slider-line {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .ev-power-slider-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .ev-telemetry-trio {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--bg-surface);
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-panel);
+    }
+
+    /* FAULT CONSOLE */
+    .fault-console-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .fault-relay-tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: var(--transition-fast);
+    }
+
+    .fault-relay-tile:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: var(--bg-card-hover);
+    }
+
+    .fault-relay-tile.active {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.1);
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
+    }
+
+    .fault-relay-tile.active-normal {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+
+    /* AI CONSOLE */
+    .ai-console-terminal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    .ai-terminal-banner {
+      padding: 14px 20px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-terminal-log {
+      flex: 1;
+      padding: 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ai-packet {
+      max-width: 84%;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .ai-packet.user {
+      align-self: flex-end;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--border-accent);
+      color: #ffffff;
+      border-bottom-right-radius: 1px;
+    }
+
+    .ai-packet.system {
+      align-self: flex-start;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      color: var(--text-main);
+      border-bottom-left-radius: 1px;
+    }
+
+    .ai-field-header {
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyan);
+      margin-top: 10px;
+      margin-bottom: 2px;
+    }
+
+    .ai-prompt-shortcuts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 18px;
+      background: var(--bg-base);
+      border-top: 1px solid var(--border-panel);
+    }
+
+    .shortcut-pill-btn {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      color: var(--cyan);
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .shortcut-pill-btn:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+    }
+
+    .ai-input-dock {
+      padding: 12px 18px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-panel);
+      display: flex;
+      gap: 10px;
+    }
+
+    .ai-cmd-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-panel);
+      background: var(--bg-base);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      outline: none;
+    }
+
+    .ai-cmd-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    /* SLIDERS & TOGGLES */
+    .tech-range-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .range-meta-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .graphite-range {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .graphite-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      background: var(--cyan);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--cyan);
+      border: 1px solid #ffffff;
+    }
+
+    .circuit-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-panel);
+      margin-bottom: 8px;
+    }
+
+    .circuit-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+
+    .circuit-switch input { opacity: 0; width: 0; height: 0; }
+
+    .circuit-switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.12);
+      transition: 0.25s;
+      border-radius: 2px;
+    }
+
+    .circuit-switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #cbd5e1;
+      transition: 0.25s;
+      border-radius: 2px;
+    }
+
+    input:checked + .circuit-switch-slider {
+      background-color: var(--cyan);
+    }
+
+    input:checked + .circuit-switch-slider:before {
+      transform: translateX(18px);
+      background-color: #070b12;
+    }
+
+    /* TOAST NOTIFICATION */
+    .cmd-toast-stack {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .cmd-toast {
+      pointer-events: auto;
+      padding: 12px 18px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--border-panel);
+      border-left: 4px solid var(--cyan);
+      min-width: 280px;
+      animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* MODAL FOR TEST RUNNER */
+    .test-modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 7, 13, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .test-modal-backdrop.open {
+      display: flex;
+    }
+
+    .test-modal-window {
+      background: var(--bg-panel);
+      border: 1px solid var(--cyan);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 40px rgba(0, 240, 255, 0.25);
+      width: 100%;
+      max-width: 860px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .test-modal-head {
+      padding: 16px 22px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-panel);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .test-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .test-report-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+    }
+
+    .test-report-row.pass { border-left: 4px solid var(--emerald); }
+    .test-report-row.fail { border-left: 4px solid var(--red); background: rgba(239, 68, 68, 0.08); }
+
+    /* FOOTER */
+    .cmd-footer {
+      border-top: 1px solid var(--border-panel);
+      background: var(--bg-surface);
+      padding: 24px 28px;
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .cmd-footer strong { color: var(--text-bright); }
+
+    @media (max-width: 1080px) {
+      .grid-2col, .grid-3col, .grid-2col-equal {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 868px) {
+      :root { --sidebar-width: 0px; }
+      .cmd-sidebar { transform: translateX(-100%); width: 260px; }
+      .cmd-sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0, 0, 0, 0.9); }
+      .viewport-container { margin-left: 0; }
+      .mobile-nav-toggle { display: flex; }
+      .cmd-topbar { padding: 0 16px; }
+      .cmd-content { padding: 16px; }
+      .topbar-meta-chip, .topbar-title-meta p { display: none; }
+      .cmd-footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="command-layout">
+  
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="cmd-sidebar" id="appSidebar">
+    <a href="#" class="brand-header-box" onclick="navigate('dashboard'); return false;">
+      <div class="brand-logo-icon">
+        <svg viewBox="0 0 24 24">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      </div>
+      <div class="brand-text-block">
+        <div class="brand-name">GRID<span>X</span></div>
+        <div class="brand-subtext">EEE COMMAND CENTER</div>
+      </div>
+    </a>
+
+    <nav class="nav-scroller">
+      <div class="nav-section-title">Telemetry & Dispatch</div>
+      <a class="nav-link-btn active" data-page="dashboard" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        DASHBOARD
+      </a>
+      <a class="nav-link-btn" data-page="grid" onclick="navigate('grid')">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        GRID MONITOR
+      </a>
+      <a class="nav-link-btn" data-page="flow" onclick="navigate('flow')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        POWER FLOW
+      </a>
+      <a class="nav-link-btn" data-page="renewables" onclick="navigate('renewables')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+        RENEWABLE ENERGY
+      </a>
+
+      <div class="nav-section-title">Subsystems & Demands</div>
+      <a class="nav-link-btn" data-page="battery" onclick="navigate('battery')">
+        <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg>
+        BATTERY / BMS
+      </a>
+      <a class="nav-link-btn" data-page="ev" onclick="navigate('ev')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="16" r="2"/><circle cx="16" cy="16" r="2"/></svg>
+        EV CHARGING
+        <span class="nav-pill-badge" id="navEvBadge">6 BAYS</span>
+      </a>
+      <a class="nav-link-btn" data-page="load" onclick="navigate('load')">
+        <svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        LOAD MANAGEMENT
+      </a>
+
+      <div class="nav-section-title">Protection & Intelligence</div>
+      <a class="nav-link-btn" data-page="faults" onclick="navigate('faults')">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        FAULT CENTER
+      </a>
+      <a class="nav-link-btn" data-page="ai" onclick="navigate('ai')">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        AI ENGINEER
+      </a>
+      <a class="nav-link-btn" data-page="settings" onclick="navigate('settings')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        SIMULATION CONTROLS
+      </a>
+    </nav>
+
+    <div class="sidebar-credits-box">
+      <div>DESIGNED & DEVELOPED BY</div>
+      <strong>Ahamed Mihad</strong> &bull; B.Tech EEE
+    </div>
+  </aside>
+
+  <!-- MAIN COMMAND VIEWPORT -->
+  <main class="viewport-container">
+    
+    <!-- COMMAND TOPBAR -->
+    <header class="cmd-topbar">
+      <div class="topbar-left">
+        <button class="mobile-nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-title-meta">
+          <h1 id="pageTitleHeading">SYSTEM OVERVIEW</h1>
+          <p>GRIDX SIMULATED SCADA &bull; PHYSICAL DISPATCH ENGINE</p>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="status-indicator-badge" id="topStatusBadge">
+          <div class="pulsing-led" id="topStatusLed"></div>
+          <span id="topStatusText">SYSTEM ONLINE</span>
+        </div>
+
+        <div class="topbar-meta-chip font-mono" id="topGridModeChip">
+          GRID-TIED
+        </div>
+
+        <div class="topbar-meta-chip font-mono" id="clockDisplay">
+          00:00:00 UTC
+        </div>
+
+        <!-- Simulation Play/Pause Toggle -->
+        <button class="cmd-btn" id="btnPauseSim" onclick="toggleSimulationPause()" title="Pause or Resume Real-Time Simulation Interval">
+          <span id="btnPauseSimIcon">&#10074;&#10074;</span>
+          <span id="btnPauseSimText">PAUSE</span>
+        </button>
+
+        <!-- Automated Self-Test Runner Trigger -->
+        <button class="cmd-btn cmd-btn-primary" onclick="openTestModal()" title="Run Automated Verification Test Suite">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          RUN TESTS
+        </button>
+
+        <!-- Master Simulation Reset -->
+        <button class="cmd-btn cmd-btn-danger" onclick="resetSimulation()" title="Reset All Simulation States to Baseline Nominal">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          RESET
+        </button>
+      </div>
+    </header>
+
+    <div class="cmd-content">
+      
+      <!-- PAGE 1: MAIN DASHBOARD -->
+      <section id="page-dashboard" class="view-page active">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Electrical Substation Telemetry Overview
+            </h2>
+            <p>Simulated physical telemetry &bull; Conserved multi-source energy dispatch &amp; stability monitoring (Educational Model)</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="cmd-btn cmd-btn-primary" onclick="navigate('flow')">
+              SCHEMATIC POWER FLOW &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- 8 PRIMARY SYSTEM METRICS -->
+        <div class="metric-matrix-8">
+          <!-- Card 1: Grid Power -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">GRID POWER</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardGridPower">143.0</span>
+              <span class="tile-unit-text">kW</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-blue" id="cardGridDirBadge">IMPORT</span>
+              <span class="font-mono" id="cardGridFreq">50.00 Hz</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Renewable Generation -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">RENEWABLE GENERATION</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardRenewGen">123.0</span>
+              <span class="tile-unit-text">kW</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green" id="cardRenewCovBadge">40.9% COV</span>
+              <span class="font-mono">Solar + Wind</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Battery SOC -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">BATTERY SOC</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardBatterySoc">74%</span>
+              <span class="tile-unit-text" id="cardBatteryKw">-35.0 kW</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-cyan" id="cardBatteryModeBadge">AUTO (DISCHG)</span>
+              <span class="font-mono" id="cardBatteryTemp">28.4 °C</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Total Load -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">TOTAL LOAD</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardTotalLoad">301.0</span>
+              <span class="tile-unit-text">kW</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green" id="cardLoadPeakBadge">NORMAL LOAD</span>
+              <span class="font-mono">P_total</span>
+            </div>
+          </div>
+
+          <!-- Card 5: Voltage -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">RMS VOLTAGE (L-L)</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardGridVolt">415.0</span>
+              <span class="tile-unit-text">V</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green" id="cardVoltBadge">NOMINAL</span>
+              <span class="font-mono">ANSI C84.1</span>
+            </div>
+          </div>
+
+          <!-- Card 6: Frequency -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">GRID FREQUENCY</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardGridFreqBig">50.00</span>
+              <span class="tile-unit-text">Hz</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green" id="cardFreqBadge">SYNC OK</span>
+              <span class="font-mono">&plusmn;0.02 Hz</span>
+            </div>
+          </div>
+
+          <!-- Card 7: Power Factor -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">POWER FACTOR</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardGridPF">0.960</span>
+              <span class="tile-unit-text">Lag</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green">OPTIMAL</span>
+              <span class="font-mono">cos(&phi;)</span>
+            </div>
+          </div>
+
+          <!-- Card 8: System Health -->
+          <div class="metric-module-tile">
+            <div class="tile-label-wrap">
+              <span class="tile-tag-label">SYSTEM HEALTH</span>
+            </div>
+            <div class="tile-val-block">
+              <span class="tile-big-num" id="cardHealthNum">96%</span>
+              <span class="tile-unit-text">SCORE</span>
+            </div>
+            <div class="tile-footer-status">
+              <span class="tech-badge badge-green" id="cardHealthPill">HEALTHY</span>
+              <span class="font-mono" id="cardActiveFaultBadge">NO FAULTS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GENERATION VS DEMAND & HEALTH RADIAL INDICATOR -->
+        <div class="grid-2col">
+          <!-- Real-Time Generation vs Demand Chart -->
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <div class="graphite-panel-title">
+                <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Active Power Balance: Local Generation vs Total Demand (kW)
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="tech-badge badge-green" id="cardBalancePill">BALANCE CONSERVED (&Delta; = 0.00 kW)</span>
+                <span class="font-mono" style="font-size:11px; color:var(--cyan);">BUFFER TELEMETRY</span>
+              </div>
+            </div>
+            <div class="chart-container-lg">
+              <canvas id="chartDashboardPower"></canvas>
+            </div>
+          </div>
+
+          <!-- Circular System Health Gauge -->
+          <div class="graphite-panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="graphite-panel-header">
+                <div class="graphite-panel-title">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                  Multi-Factor Health Index
+                </div>
+                <span class="tech-badge badge-green" id="healthScorePill">HEALTHY</span>
+              </div>
+
+              <!-- Radial Gauge -->
+              <div style="display:flex; align-items:center; justify-content:center; padding:12px 0;">
+                <div style="width:140px; height:140px; position:relative; display:flex; align-items:center; justify-content:center;">
+                  <svg viewBox="0 0 100 100" style="width:100%; height:100%; transform:rotate(-90deg);">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                    <circle id="healthSvgCircle" cx="50" cy="50" r="42" fill="none" stroke="var(--cyan)" stroke-width="10" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="11" style="transition:stroke-dashoffset 0.6s ease, stroke 0.3s; filter:drop-shadow(0 0 6px var(--cyan));"/>
+                  </svg>
+                  <div style="position:absolute; display:flex; flex-direction:column; align-items:center;">
+                    <span class="font-mono" style="font-size:32px; font-weight:700; color:#ffffff; line-height:1;" id="bigHealthPct">96%</span>
+                    <span style="font-size:9.5px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">STABILITY</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sub-Health Vectors -->
+              <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11.5px; font-family:var(--font-mono); margin-bottom:4px;">
+                    <span style="color:var(--text-muted);">Voltage & Frequency Deviation</span>
+                    <span id="subVoltFreqHealth">98%</span>
+                  </div>
+                  <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
+                    <div id="barVoltHealth" style="height:100%; width:98%; background:var(--cyan);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11.5px; font-family:var(--font-mono); margin-bottom:4px;">
+                    <span style="color:var(--text-muted);">BESS Thermal &amp; SOC Boundaries</span>
+                    <span id="subBatHealth">94%</span>
+                  </div>
+                  <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
+                    <div id="barBatHealth" style="height:100%; width:94%; background:var(--emerald);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11.5px; font-family:var(--font-mono); margin-bottom:4px;">
+                    <span style="color:var(--text-muted);">Feeder Loading Stress Factor</span>
+                    <span id="subFeederHealth">95%</span>
+                  </div>
+                  <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
+                    <div id="barFeederHealth" style="height:100%; width:95%; background:var(--blue);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid rgba(148,163,184,0.08);">
+              <button class="cmd-btn" style="flex:1;" onclick="navigate('faults')">DIAGNOSTICS</button>
+              <button class="cmd-btn cmd-btn-primary" style="flex:1;" onclick="navigate('ai')">CONSULT ASSISTANT</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCADA Real-Time Event Stream -->
+        <div class="graphite-panel">
+          <div class="graphite-panel-header">
+            <div class="graphite-panel-title">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Simulated Substation SCADA Event Log
+            </div>
+            <span class="font-mono" style="font-size:11px; color:var(--cyan);" id="eventCountBadge">5 Events Buffered</span>
+          </div>
+          <div id="dashboardEventLog" style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: GRID MONITOR -->
+      <section id="page-grid" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              Three-Phase AC Electrical Telemetry
+            </h2>
+            <p>Mathematical consistency: S = √3&middot;V&middot;I &bull; P = S&middot;PF &bull; Q = √(S²&minus;P²) &bull; PF = P/S (Simulated Telemetry)</p>
+          </div>
+        </div>
+
+        <div class="metric-matrix-8">
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">VOLTAGE (V_LL)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridVolt">415.0</span><span class="tile-unit-text">V</span></div>
+            <div class="tile-footer-status"><span class="tech-badge badge-green" id="badgeVoltNorm">VOLTAGE NORMAL</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">FREQUENCY</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridFreq">50.00</span><span class="tile-unit-text">Hz</span></div>
+            <div class="tile-footer-status"><span class="tech-badge badge-green" id="badgeFreqNorm">FREQUENCY NORMAL</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">LINE CURRENT (I)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridCurrent">435.2</span><span class="tile-unit-text">A</span></div>
+            <div class="tile-footer-status"><span class="font-mono">I = S / (√3&middot;V)</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">ACTIVE POWER (P)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridActiveP">301.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="font-mono">P = √3&middot;V&middot;I&middot;PF</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">REACTIVE POWER (Q)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridReactiveQ">87.8</span><span class="tile-unit-text">kVAR</span></div>
+            <div class="tile-footer-status"><span class="font-mono">Q = √(S² &minus; P²)</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">APPARENT POWER (S)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridApparentS">313.5</span><span class="tile-unit-text">kVA</span></div>
+            <div class="tile-footer-status"><span class="font-mono">S = √3&middot;V&middot;I</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">POWER FACTOR</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridPF">0.960</span><span class="tile-unit-text">Lag</span></div>
+            <div class="tile-footer-status"><span class="tech-badge badge-green" id="badgePfNorm">PF ACCEPTABLE</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">HARMONICS (THD)</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="gridTHD">2.1</span><span class="tile-unit-text">%</span></div>
+            <div class="tile-footer-status"><span class="tech-badge badge-green" id="badgeThdNorm">THD NORMAL</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2col-equal">
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Voltage Trajectory (V_LL)</span>
+              <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Nominal: 415 V</span>
+            </div>
+            <div class="chart-container-box"><canvas id="chartGridVolt"></canvas></div>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Frequency Regulation (Hz)</span>
+              <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Sync: 50.00 Hz</span>
+            </div>
+            <div class="chart-container-box"><canvas id="chartGridFreq"></canvas></div>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Substation Demand (kW)</span>
+              <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Active P</span>
+            </div>
+            <div class="chart-container-box"><canvas id="chartGridLoad"></canvas></div>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Power Factor Vector</span>
+              <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Target &gt; 0.95</span>
+            </div>
+            <div class="chart-container-box"><canvas id="chartGridPF"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: POWER FLOW DIAGRAM -->
+      <section id="page-flow" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Dynamic Digital Power-Flow Architecture
+            </h2>
+            <p>Directional energy vectors derived from actual simulation state &bull; Conserved node balance: &Sigma;P = 0</p>
+          </div>
+          <div>
+            <span class="tech-badge badge-green" id="flowConserveTag">BALANCE CONSERVED (&Sigma;P = 0)</span>
+          </div>
+        </div>
+
+        <div class="flow-schematic-stage">
+          <div style="position:relative; width:100%; height:520px;" id="flowSchematicArea">
+            <svg class="flow-canvas-svg" id="flowSvg">
+              <path id="path-solar" class="flow-wire-underlay" />
+              <path id="path-solar-anim" class="flow-wire-active" stroke="#f59e0b" />
+
+              <path id="path-wind" class="flow-wire-underlay" />
+              <path id="path-wind-anim" class="flow-wire-active" stroke="#00f0ff" />
+
+              <path id="path-battery" class="flow-wire-underlay" />
+              <path id="path-battery-anim" class="flow-wire-active" stroke="#10b981" />
+
+              <path id="path-grid" class="flow-wire-underlay" />
+              <path id="path-grid-anim" class="flow-wire-active" stroke="#2563eb" />
+
+              <path id="path-load" class="flow-wire-underlay" />
+              <path id="path-load-anim" class="flow-wire-active" stroke="#ef4444" />
+
+              <path id="path-ev" class="flow-wire-underlay" />
+              <path id="path-ev-anim" class="flow-wire-active" stroke="#8b5cf6" />
+            </svg>
+
+            <!-- Floating Flow Badges -->
+            <div class="flow-telemetry-badge" id="tagFlowSolar" style="left:26%; top:22%;">Solar &rarr; Bus: 82.0 kW</div>
+            <div class="flow-telemetry-badge" id="tagFlowWind" style="left:26%; top:44%;">Wind &rarr; Bus: 41.0 kW</div>
+            <div class="flow-telemetry-badge" id="tagFlowBattery" style="left:26%; top:74%;">Batt &rarr; Bus: 35.0 kW</div>
+            <div class="flow-telemetry-badge" id="tagFlowGrid" style="left:50%; top:20%;">Grid &rarr; Bus: 143.0 kW</div>
+            <div class="flow-telemetry-badge" id="tagFlowLoad" style="left:74%; top:28%;">Bus &rarr; Load: 248.0 kW</div>
+            <div class="flow-telemetry-badge" id="tagFlowEv" style="left:74%; top:72%;">Bus &rarr; EV: 53.0 kW</div>
+
+            <!-- SCHEMATIC NODES -->
+            <div class="flow-node-box" id="nodeSolar" style="left: 6%; top: 12%;">
+              <div class="node-title-lbl">SOLAR ARRAY</div>
+              <div class="node-kw-display" id="nodeValSolar">82.0 kW</div>
+              <span class="tech-badge badge-amber" style="margin-top:4px;">MPPT Active</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeWind" style="left: 6%; top: 38%;">
+              <div class="node-title-lbl">WIND TURBINE</div>
+              <div class="node-kw-display" id="nodeValWind">41.0 kW</div>
+              <span class="tech-badge badge-cyan" style="margin-top:4px;">8.4 m/s</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeBattery" style="left: 6%; top: 66%;">
+              <div class="node-title-lbl">400 kWh BESS</div>
+              <div class="node-kw-display" id="nodeValBattery">-35.0 kW</div>
+              <span class="tech-badge badge-green" id="nodeBadgeBattery" style="margin-top:4px;">74% SOC</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeBus" style="left: 43%; top: 38%; border:2px solid var(--cyan); box-shadow:0 0 24px rgba(0,240,255,0.3);">
+              <div class="node-title-lbl" style="color:var(--cyan);">415V CENTRAL BUS</div>
+              <div class="node-kw-display" id="nodeValBus">301.0 kW</div>
+              <span class="tech-badge badge-cyan" id="nodeBadgeBusStatus" style="margin-top:4px;">50.00 Hz</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeGrid" style="left: 43%; top: 4%;">
+              <div class="node-title-lbl">UTILITY GRID</div>
+              <div class="node-kw-display" id="nodeValGrid">143.0 kW</div>
+              <span class="tech-badge badge-blue" id="nodeBadgeGrid" style="margin-top:4px;">IMPORT</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeLoad" style="left: 80%; top: 18%;">
+              <div class="node-title-lbl">FACTORY LOADS</div>
+              <div class="node-kw-display" id="nodeValLoad">248.0 kW</div>
+              <span class="tech-badge badge-red" style="margin-top:4px;">Industrial Bus</span>
+            </div>
+
+            <div class="flow-node-box" id="nodeEv" style="left: 80%; top: 62%;">
+              <div class="node-title-lbl">EV SUPERHUB</div>
+              <div class="node-kw-display" id="nodeValEv">53.0 kW</div>
+              <span class="tech-badge badge-blue" id="nodeBadgeEvBays" style="margin-top:4px;">6 Active Bays</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: RENEWABLE ENERGY ANALYTICS -->
+      <section id="page-renewables" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+              Clean Renewable Energy Telemetry
+            </h2>
+            <p>Clear distinction: Total Renewable Generation (kW) vs Supply Coverage (%) &bull; Surplus, Deficit &amp; Curtailment</p>
+          </div>
+        </div>
+
+        <div class="metric-matrix-8">
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">SOLAR GENERATION</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewSolarKw">82.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="font-mono">PV Array Output</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">WIND GENERATION</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewWindKw">41.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="font-mono">Turbine Output</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">TOTAL RENEWABLE</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewTotalKw">123.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="tech-badge badge-green">SOLAR + WIND</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">RENEWABLE COVERAGE</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewCoveragePct">40.9%</span></div>
+            <div class="tile-footer-status"><span class="font-mono">Renewable / Load</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">RENEWABLE SURPLUS</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewSurplusKw">0.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="font-mono">To BESS / Grid Export</span></div>
+          </div>
+
+          <div class="metric-module-tile">
+            <span class="tile-tag-label">RENEWABLE DEFICIT</span>
+            <div class="tile-val-block"><span class="tile-big-num" id="renewDeficitKw">178.0</span><span class="tile-unit-text">kW</span></div>
+            <div class="tile-footer-status"><span class="font-mono">Supplied by BESS / Grid</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Real-Time Energy Generation Mix</span>
+              <span class="tech-badge badge-cyan">DISPATCH COUPLING</span>
+            </div>
+            <div class="chart-container-lg"><canvas id="chartRenewMix"></canvas></div>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></svg> Environmental &amp; Inverter Vectors</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">Solar Panel Surface Temperature</span>
+                <span class="font-mono" style="font-weight:700; color:#fff;">41.8 °C</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">MPPT Inverter Efficiency</span>
+                <span class="font-mono" style="font-weight:700; color:var(--emerald);">98.4%</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">Wind Turbine Rotor Speed</span>
+                <span class="font-mono" style="font-weight:700; color:#fff;">18.5 RPM</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">Turbine Aerodynamic Coeff (Cp)</span>
+                <span class="font-mono" style="font-weight:700; color:#fff;">0.46 (Betz Limit)</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">Avoided Emissions Today (Calculated)</span>
+                <span class="font-mono" style="font-weight:700; color:var(--emerald);" id="metricAvoidedEmissions">524 kg CO₂</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 5: BATTERY / BMS -->
+      <section id="page-battery" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg>
+              Battery Energy Storage System (BESS 400 kWh)
+            </h2>
+            <p>Automated economic dispatch &bull; 95% charge/discharge efficiency &bull; Simplified BESS Thermal &amp; SOC Model</p>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="graphite-panel bms-soc-ring-area">
+            <div class="soc-circular-widget">
+              <svg class="soc-svg-frame" viewBox="0 0 160 160">
+                <circle class="soc-gauge-bg" cx="80" cy="80" r="68" />
+                <circle class="soc-gauge-progress" id="bmsSocGaugeCircle" cx="80" cy="80" r="68" />
+              </svg>
+              <div class="soc-center-readout">
+                <span class="soc-main-pct" id="bmsSocBig">74%</span>
+                <span class="soc-mode-lbl" id="bmsOperatingStateText">DISCHARGING</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:20px;">
+              <button class="cmd-btn cmd-btn-primary" id="btnModeAuto" onclick="setBatteryMode('AUTO')">AUTO DISPATCH</button>
+              <button class="cmd-btn" id="btnModeCharge" onclick="setBatteryMode('FORCE_CHARGE')">FORCE CHARGE (+50 kW)</button>
+              <button class="cmd-btn" id="btnModeDischarge" onclick="setBatteryMode('FORCE_DISCHARGE')">FORCE DISCHG (-60 kW)</button>
+              <button class="cmd-btn" id="btnModeIdle" onclick="setBatteryMode('IDLE')">IDLE STANDBY</button>
+            </div>
+
+            <p style="font-size:11.5px; color:var(--text-muted); font-family:var(--font-mono); margin-top:14px;" id="bmsModeExplanation">
+              AUTO Mode: Automatically charges during renewable surplus (up to 50 kW) and discharges to cover deficits (up to 60 kW) while respecting 20%-95% SOC limits.
+            </p>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> BESS Operational Telemetry</span>
+              <span class="tech-badge badge-green" id="bmsThermalBadge">NORMAL</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div class="metric-module-tile" style="min-height:90px; padding:12px;">
+                <span class="tile-tag-label">OPERATING POWER</span>
+                <div class="tile-val-block"><span class="tile-big-num" style="font-size:24px;" id="bmsPowerKw">-35.0</span><span class="tile-unit-text">kW</span></div>
+                <span class="font-mono" style="font-size:10px; color:var(--text-muted);" id="bmsDirectionNote">Discharging to Bus</span>
+              </div>
+
+              <div class="metric-module-tile" style="min-height:90px; padding:12px;">
+                <span class="tile-tag-label">PACK TEMPERATURE</span>
+                <div class="tile-val-block"><span class="tile-big-num" style="font-size:24px;" id="bmsTempC">28.4</span><span class="tile-unit-text">°C</span></div>
+                <span class="font-mono" style="font-size:10px; color:var(--text-muted);">T &prop; (P/50)²</span>
+              </div>
+
+              <div class="metric-module-tile" style="min-height:90px; padding:12px;">
+                <span class="tile-tag-label">STORED ENERGY</span>
+                <div class="tile-val-block"><span class="tile-big-num" style="font-size:24px;" id="bmsStoredKwh">296.0</span><span class="tile-unit-text">kWh</span></div>
+                <span class="font-mono" style="font-size:10px; color:var(--text-muted);">Capacity: 400 kWh</span>
+              </div>
+
+              <div class="metric-module-tile" style="min-height:90px; padding:12px;">
+                <span class="tile-tag-label">STATE OF HEALTH (SOH)</span>
+                <div class="tile-val-block"><span class="tile-big-num" style="font-size:24px;">92.4%</span></div>
+                <span class="font-mono" style="font-size:10px; color:var(--text-muted);">430 Life Cycles</span>
+              </div>
+            </div>
+
+            <div style="margin-top:14px; padding:10px 14px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">
+              <strong>BESS Operating Rules:</strong> 400 kWh Capacity &bull; 95% Charge/Discharge Efficiency &bull; Max Charge 50 kW &bull; Max Discharge 60 kW &bull; SOC Range [20%, 95%]. IDLE mode enforces strictly 0 kW.
+            </div>
+          </div>
+        </div>
+
+        <div class="graphite-panel">
+          <div class="graphite-panel-header">
+            <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="4"/></svg> Active Cell Balancing Module (Module 01)</span>
+            <span class="font-mono" style="font-size:11px; color:var(--cyan);">&Delta;V = 14 mV (BALANCED)</span>
+          </div>
+          <div class="cell-matrix-grid" id="bmsCellPods">
+            <!-- Dynamically generated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 6: EV CHARGING STATION -->
+      <section id="page-ev" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="16" r="2"/></svg>
+              EV Smart Fast-Charging Station
+            </h2>
+            <p>Peak demand mitigation &bull; Lower SOC prioritized &bull; Throttling engaged when substation load exceeds 330 kW</p>
+          </div>
+        </div>
+
+        <!-- Smart Charging Alert Banner -->
+        <div class="tech-disclaimer-strip" id="evSmartAlertBanner" style="display:none; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.08); color:var(--amber);">
+          <svg viewBox="0 0 24 24" stroke="var(--amber)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          <div>
+            <strong>SMART CHARGING ACTIVE &bull; PEAK THRESHOLD EXCEEDED (&gt;330 kW)</strong><br>
+            REQUESTED: <span class="font-mono" id="evBannerReq">53.0 kW</span> &bull; 
+            ACTUAL: <span class="font-mono" id="evBannerAct">38.0 kW</span> &bull; 
+            REDUCTION: <span class="font-mono" id="evBannerRed">15.0 kW</span>. Lower SOC vehicles preserved.
+          </div>
+        </div>
+
+        <div class="ev-bays-matrix" id="evBaysContainer">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </section>
+
+      <!-- PAGE 7: LOAD MANAGEMENT -->
+      <section id="page-load" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+              Industrial Feeder &amp; Load Management
+            </h2>
+            <p>Independent tracking: Configured &bull; Requested &bull; Shed &bull; Served Loads during islanded microgrid operations</p>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="4"/></svg> Feeder Circuit Breakers &amp; Priority Tiers</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <!-- Factory -->
+              <div class="circuit-toggle-row">
+                <div>
+                  <div style="font-weight:700; color:#fff;">Heavy Industrial Factory</div>
+                  <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">
+                    Configured: 120 kW &bull; Priority: <span class="tech-badge badge-blue">IMPORTANT</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span class="font-mono" style="font-weight:700; color:var(--cyan);" id="loadServedFactory">120.0 kW</span>
+                  <label class="circuit-switch">
+                    <input type="checkbox" id="chkLoadFactory" checked onchange="toggleFeederBreaker('factory', this.checked)">
+                    <span class="circuit-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- HVAC -->
+              <div class="circuit-toggle-row">
+                <div>
+                  <div style="font-weight:700; color:#fff;">Chiller &amp; HVAC System</div>
+                  <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">
+                    Configured: 35 kW &bull; Priority: <span class="tech-badge badge-amber">NON-CRITICAL</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span class="font-mono" style="font-weight:700; color:var(--cyan);" id="loadServedHvac">35.0 kW</span>
+                  <label class="circuit-switch">
+                    <input type="checkbox" id="chkLoadHvac" checked onchange="toggleFeederBreaker('hvac', this.checked)">
+                    <span class="circuit-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Lighting -->
+              <div class="circuit-toggle-row">
+                <div>
+                  <div style="font-weight:700; color:#fff;">Campus Lighting &amp; Auxiliary</div>
+                  <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">
+                    Configured: 18 kW &bull; Priority: <span class="tech-badge badge-red">CRITICAL</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span class="font-mono" style="font-weight:700; color:var(--cyan);" id="loadServedLighting">18.0 kW</span>
+                  <label class="circuit-switch">
+                    <input type="checkbox" id="chkLoadLighting" checked onchange="toggleFeederBreaker('lighting', this.checked)">
+                    <span class="circuit-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Motors -->
+              <div class="circuit-toggle-row">
+                <div>
+                  <div style="font-weight:700; color:#fff;">Pumping &amp; Induction Motors</div>
+                  <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">
+                    Configured: 75 kW &bull; Priority: <span class="tech-badge badge-blue">IMPORTANT</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span class="font-mono" style="font-weight:700; color:var(--cyan);" id="loadServedMotors">75.0 kW</span>
+                  <label class="circuit-switch">
+                    <input type="checkbox" id="chkLoadMotors" checked onchange="toggleFeederBreaker('motors', this.checked)">
+                    <span class="circuit-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- EV Hub -->
+              <div class="circuit-toggle-row">
+                <div>
+                  <div style="font-weight:700; color:#fff;">EV Fast-Charging Superhub</div>
+                  <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">
+                    Dynamic &bull; Priority: <span class="tech-badge badge-amber">NON-CRITICAL</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span class="font-mono" style="font-weight:700; color:var(--purple);" id="loadServedEv">53.0 kW</span>
+                  <label class="circuit-switch">
+                    <input type="checkbox" id="chkLoadEv" checked onchange="toggleFeederBreaker('ev', this.checked)">
+                    <span class="circuit-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 24-Hour Diurnal Load Profile -->
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> 24-Hour Diurnal Substation Load Curve</span>
+              <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Typical Profile Baseline</span>
+            </div>
+            <div class="chart-container-lg">
+              <canvas id="chartLoadProfile24"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 8: FAULT CENTER -->
+      <section id="page-faults" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Electrical Protection &amp; Fault Console
+            </h2>
+            <p>Educational interactive relay trip simulation &bull; Symmetrical &amp; asymmetrical fault physics</p>
+          </div>
+          <div>
+            <button class="cmd-btn cmd-btn-primary" onclick="setFaultMode('normal')">CLEAR ALL FAULTS</button>
+          </div>
+        </div>
+
+        <div class="tech-disclaimer-strip">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            Simulated educational fault scenarios. Provides approximate electrical behavior for learning protection coordination and does not replace field measurements or EMT studies.
+          </div>
+        </div>
+
+        <div class="fault-console-matrix">
+          <div class="fault-relay-tile active-normal" id="fault-normal" onclick="setFaultMode('normal')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">NORMAL</strong>
+              <span class="tech-badge badge-green">HEALTHY</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Nominal 415V, 50Hz. All relays armed.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-overload" onclick="setFaultMode('overload')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">OVERLOAD</strong>
+              <span class="tech-badge badge-amber">WARNING</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Demand exceeds continuous thermal rating.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-overvoltage" onclick="setFaultMode('overvoltage')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">OVERVOLTAGE</strong>
+              <span class="tech-badge badge-red">478 V</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Voltage rises +15.2% threatening insulation.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-undervoltage" onclick="setFaultMode('undervoltage')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">UNDERVOLTAGE</strong>
+              <span class="tech-badge badge-amber">348 V</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Voltage sags -16.1% risking motor stalling.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-shortcircuit" onclick="setFaultMode('shortcircuit')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">SHORT CIRCUIT</strong>
+              <span class="tech-badge badge-red">12 kA TRIP</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Bolted 3&Phi; fault collapses voltage to 42V.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-freqdev" onclick="setFaultMode('freqdev')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">FREQ DEVIATION</strong>
+              <span class="tech-badge badge-amber">48.4 Hz</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Generation deficit drops grid frequency.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-batovertemp" onclick="setFaultMode('batovertemp')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">BESS OVERTEMP</strong>
+              <span class="tech-badge badge-red">68 °C</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Thermal runaway trip; isolates DC contactor.</p>
+          </div>
+
+          <div class="fault-relay-tile" id="fault-singlephasing" onclick="setFaultMode('singlephasing')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-family:var(--font-mono); font-size:12px; color:#fff;">SINGLE PHASING</strong>
+              <span class="tech-badge badge-red">PHASE B LOST</span>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted);">Negative sequence motor rotor heating.</p>
+          </div>
+        </div>
+
+        <div class="graphite-panel">
+          <div class="graphite-panel-header">
+            <div>
+              <div class="font-display" style="font-size:18px; font-weight:700; color:#fff;" id="diagHeading">SYSTEM HEALTHY — NO ACTIVE FAULTS</div>
+              <div style="font-size:11.5px; font-family:var(--font-mono); color:var(--text-muted);" id="diagSubheading">All telemetry signals are within ANSI C84.1 Range A voltage and frequency limits.</div>
+            </div>
+            <span class="tech-badge badge-green" id="diagPill">NORMAL</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:14px;">
+            <div style="padding:12px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); border-left:3px solid var(--cyan);">
+              <div class="font-mono" style="font-size:10px; color:var(--text-muted);">AFFECTED SUBSYSTEM</div>
+              <div class="font-mono" style="font-weight:700; font-size:13px; color:#fff; margin-top:4px;" id="diagSubsystem">None (All Nominal)</div>
+            </div>
+
+            <div style="padding:12px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); border-left:3px solid var(--cyan);">
+              <div class="font-mono" style="font-size:10px; color:var(--text-muted);">FAULT SEVERITY</div>
+              <div class="font-mono" style="font-weight:700; font-size:13px; color:#fff; margin-top:4px;" id="diagSeverity">Normal (Code 0)</div>
+            </div>
+
+            <div style="padding:12px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); border-left:3px solid var(--cyan);">
+              <div class="font-mono" style="font-size:10px; color:var(--text-muted);">OBSERVED SYMPTOMS</div>
+              <div class="font-mono" style="font-weight:700; font-size:13px; color:#fff; margin-top:4px;" id="diagSymptoms">Balanced steady-state voltages &amp; currents</div>
+            </div>
+
+            <div style="padding:12px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); border-left:3px solid var(--cyan);">
+              <div class="font-mono" style="font-size:10px; color:var(--text-muted);">RECOMMENDED ACTION</div>
+              <div class="font-mono" style="font-weight:700; font-size:13px; color:#fff; margin-top:4px;" id="diagAction">Maintain automated SCADA supervisory loop.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 9: AI ENGINEER (RULE-BASED EXPERT DIAGNOSTIC SYSTEM) -->
+      <section id="page-ai" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              Electrical Systems Expert Diagnostic Assistant
+            </h2>
+            <p>Rule-Based Engineering Diagnostic Engine &bull; Grounded strictly in simulated state variables &bull; Offline &amp; Deterministic</p>
+          </div>
+        </div>
+
+        <div class="ai-console-terminal">
+          <div class="ai-terminal-banner">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="pulsing-led"></div>
+              <span class="font-mono" style="font-size:12px; font-weight:700; color:#fff;">GRIDX RULE-BASED DIAGNOSTIC ASSISTANT</span>
+            </div>
+            <span class="font-mono" style="font-size:11px; color:var(--cyan);">GROUNDED IN SIMULATED TELEMETRY</span>
+          </div>
+
+          <div class="ai-terminal-log" id="aiTerminalChat">
+            <div class="ai-packet system">
+              Diagnostic Assistant connected. I evaluate live simulated telemetry: active/reactive powers, battery SOC constraints, microgrid stability, and protective relay states.
+              <br><br>
+              Select a suggested engineering query or type an operational question below.
+            </div>
+          </div>
+
+          <div class="ai-prompt-shortcuts">
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('Why is grid import high?')">Why is grid import high?</button>
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('Why is the battery discharging?')">Why is battery discharging?</button>
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('Why is voltage low?')">Why is voltage low?</button>
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('Why are EV chargers throttled?')">Why are EV chargers throttled?</button>
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('What caused the fault?')">What caused the fault?</button>
+            <button class="shortcut-pill-btn" onclick="sendAiShortcut('How can I reduce peak demand?')">How can I reduce peak demand?</button>
+          </div>
+
+          <div class="ai-input-dock">
+            <input type="text" class="ai-cmd-input" id="aiQueryInput" placeholder="Enter engineering question (e.g., Why is grid import high?)..." onkeydown="if(event.key==='Enter') executeAiQuery()">
+            <button class="cmd-btn cmd-btn-primary" onclick="executeAiQuery()">ANALYZE</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 10: SIMULATION CONTROLS & ISLANDED MICROGRID MODEL -->
+      <section id="page-settings" class="view-page">
+        <div class="section-headline-bar">
+          <div>
+            <h2>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Simulation Controls &amp; Islanded Microgrid Model
+            </h2>
+            <p>Manual environmental sliders &bull; Simplified Microgrid Dynamic Model &bull; Three-Phase AC Formulations</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="cmd-btn cmd-btn-primary" onclick="openTestModal()">
+              VERIFICATION SUITE
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Environmental &amp; Demand Injections</span>
+            </div>
+
+            <div class="tech-range-row">
+              <div class="range-meta-info">
+                <span style="color:var(--text-dim);">Solar Generation Capacity</span>
+                <span style="color:var(--cyan);" id="numSliderSolar">82 kW</span>
+              </div>
+              <input type="range" class="graphite-range" min="0" max="150" value="82" id="rngSolar" oninput="adjustSimInput('solar', this.value)">
+            </div>
+
+            <div class="tech-range-row">
+              <div class="range-meta-info">
+                <span style="color:var(--text-dim);">Wind Turbine Output</span>
+                <span style="color:var(--cyan);" id="numSliderWind">41 kW</span>
+              </div>
+              <input type="range" class="graphite-range" min="0" max="100" value="41" id="rngWind" oninput="adjustSimInput('wind', this.value)">
+            </div>
+
+            <div class="tech-range-row">
+              <div class="range-meta-info">
+                <span style="color:var(--text-dim);">Factory Base Demand</span>
+                <span style="color:var(--cyan);" id="numSliderFactory">120 kW</span>
+              </div>
+              <input type="range" class="graphite-range" min="0" max="200" value="120" id="rngFactory" oninput="adjustSimInput('factory', this.value)">
+            </div>
+
+            <div class="tech-range-row">
+              <div class="range-meta-info">
+                <span style="color:var(--text-dim);">EV Target Demand</span>
+                <span style="color:var(--cyan);" id="numSliderEv">53 kW</span>
+              </div>
+              <input type="range" class="graphite-range" min="0" max="120" value="53" id="rngEv" oninput="adjustSimInput('ev', this.value)">
+            </div>
+
+            <div class="tech-range-row">
+              <div class="range-meta-info">
+                <span style="color:var(--text-dim);">Battery SOC Override</span>
+                <span style="color:var(--cyan);" id="numSliderSoc">74 %</span>
+              </div>
+              <input type="range" class="graphite-range" min="10" max="100" value="74" id="rngSoc" oninput="adjustSimInput('soc', this.value)">
+            </div>
+
+            <div class="circuit-toggle-row" style="margin-top:16px;">
+              <div>
+                <strong style="color:#fff;">Utility Grid Interconnection</strong>
+                <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">
+                  ON = Grid-Tied Mode &bull; OFF = Islanded Microgrid Mode
+                </div>
+              </div>
+              <label class="circuit-switch">
+                <input type="checkbox" id="chkGridState" checked onchange="toggleGridIntertie(this.checked)">
+                <span class="circuit-switch-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="graphite-panel">
+            <div class="graphite-panel-header">
+              <span class="graphite-panel-title"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg> SIMPLIFIED MICROGRID DYNAMIC MODEL</span>
+              <span class="tech-badge badge-blue" id="microgridPillTag">GRID-TIED</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">AVAILABLE GENERATION</span>
+                <span class="font-mono" style="font-weight:700; color:#fff;" id="islandAvailGen">183.0 kW</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">REQUESTED DEMAND</span>
+                <span class="font-mono" style="font-weight:700; color:#fff;" id="islandDemand">301.0 kW</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">INITIAL POWER DEFICIT</span>
+                <span class="font-mono" style="font-weight:700; color:var(--red);" id="islandDeficit">0.0 kW</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">TOTAL SHED LOAD</span>
+                <span class="font-mono" style="font-weight:700; color:var(--amber);" id="islandShedLoad">0.0 kW</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">NET SERVED LOAD</span>
+                <span class="font-mono" style="font-weight:700; color:var(--emerald);" id="islandServedLoad">301.0 kW</span>
+              </div>
+              <div class="circuit-toggle-row">
+                <span class="font-mono" style="color:var(--text-dim);">MICROGRID FREQUENCY / VOLTAGE</span>
+                <span class="font-mono" style="font-weight:700; color:var(--cyan);" id="islandFreqVolt">50.00 Hz / 415.0 V</span>
+              </div>
+            </div>
+
+            <div style="padding:12px 14px; background:var(--bg-surface); border-radius:var(--radius-sm); border:1px solid var(--border-panel); font-size:11.5px; font-family:var(--font-mono); color:var(--text-muted); line-height:1.7;">
+              <strong>Three-Phase Formulations (Conserved):</strong><br>
+              &bull; S = &radic;3 &times; V &times; I<br>
+              &bull; P = &radic;3 &times; V &times; I &times; PF<br>
+              &bull; Q = &radic;(S&sup2; &minus; P&sup2;)<br>
+              &bull; PF = P / S = cos(&phi;)<br>
+              &bull; Bus Inflow: &Sigma;P_in = P_renewables + P_batt_discharge + P_grid_import<br>
+              &bull; Bus Outflow: &Sigma;P_out = P_served_loads + P_batt_charge + P_grid_export<br>
+              &bull; Imbalance: &Delta;P = |&Sigma;P_in &minus; &Sigma;P_out| &le; 0.05 kW
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="cmd-footer">
+      <div>
+        <strong>GRIDX — Interactive EEE Engineering Command Center</strong><br>
+        Designed &amp; Developed by <strong>Ahamed Mihad</strong> &bull; B.Tech Electrical &amp; Electronics Engineering
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-mono); color:var(--cyan); font-weight:700;">DESIGN. SIMULATE. ANALYZE. ENGINEER.</div>
+        <div style="color:var(--text-dim); margin-top:2px;">&copy; 2026 GRIDX Systems. Simulated Educational Control System.</div>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- TOAST NOTIFICATION STACK -->
+<div class="cmd-toast-stack" id="toastContainer"></div>
+
+<!-- AUTOMATED TEST SUITE MODAL -->
+<div class="test-modal-backdrop" id="testModalBackdrop">
+  <div class="test-modal-window">
+    <div class="test-modal-head">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <strong style="color:#ffffff; font-family:var(--font-mono); font-size:14px;">GRIDX AUTOMATED VERIFICATION SUITE</strong>
+      </div>
+      <button class="cmd-btn" onclick="closeTestModal()" style="padding:4px 10px;">CLOSE [ESC]</button>
+    </div>
+    <div class="test-modal-body" id="testModalBody">
+      <div style="color:var(--text-muted); margin-bottom:10px;">
+        Testing deterministic power balance, battery dispatch, EV constraints, islanded load shedding, fault recoveries, and numerical integrity...
+      </div>
+      <div id="testResultsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+    <div style="padding:14px 20px; background:var(--bg-surface); border-top:1px solid var(--border-panel); display:flex; justify-content:space-between; align-items:center;">
+      <span id="testSummaryBadge" class="tech-badge badge-green" style="font-size:11px; padding:5px 12px;">READY TO RUN</span>
+      <button class="cmd-btn cmd-btn-primary" onclick="executeAndRenderTests()">EXECUTE ALL 10 TESTS</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     GRIDX DETERMINISTIC SCADA ENGINE & SIMULATION LOOP
+     ========================================================================== -->
+<script>
+// ============================================================================
+// 1. IMMUTABLE BASELINE DEFINITION FOR CLEAN RESTORATION
+// ============================================================================
+const INITIAL_STATE = {
+  solarKw: 82.0,
+  windKw: 41.0,
+  totalRenewableKw: 123.0,
+  curtailedRenewableKw: 0.0,
+  renewableSupplyCoveragePct: 40.9,
+  renewableSurplusKw: 0.0,
+  renewableDeficitKw: 178.0,
+
+  loads: {
+    factory:  { configuredLoad: 120.0, requestedLoad: 120.0, shedLoad: 0.0, servedLoad: 120.0, enabled: true, priority: 'IMPORTANT' },
+    hvac:     { configuredLoad: 35.0,  requestedLoad: 35.0,  shedLoad: 0.0, servedLoad: 35.0,  enabled: true, priority: 'NON-CRITICAL' },
+    lighting: { configuredLoad: 18.0,  requestedLoad: 18.0,  shedLoad: 0.0, servedLoad: 18.0,  enabled: true, priority: 'CRITICAL' },
+    motors:   { configuredLoad: 75.0,  requestedLoad: 75.0,  shedLoad: 0.0, servedLoad: 75.0,  enabled: true, priority: 'IMPORTANT' },
+    ev:       { configuredLoad: 53.0,  requestedLoad: 53.0,  shedLoad: 0.0, servedLoad: 53.0,  enabled: true, priority: 'NON-CRITICAL' }
+  },
+  totalBaseConfiguredKw: 301.0,
+  totalBaseServedKw: 301.0,
+  totalSystemLoadKw: 301.0,
+
+  evs: [
+    { id: 'EV-01', model: 'Tesla Model 3',   soc: 64.0, maxKw: 22.0, reqKw: 22.0, actKw: 22.0, charging: true, estMins: 45, priority: 'MEDIUM', batteryCapacityKwh: 75.0,  chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 },
+    { id: 'EV-02', model: 'Porsche Taycan',  soc: 38.0, maxKw: 50.0, reqKw: 50.0, actKw: 50.0, charging: true, estMins: 35, priority: 'HIGH',   batteryCapacityKwh: 93.0,  chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 },
+    { id: 'EV-03', model: 'Hyundai Ioniq 5', soc: 82.0, maxKw: 11.0, reqKw: 11.0, actKw: 11.0, charging: true, estMins: 20, priority: 'LOW',    batteryCapacityKwh: 77.0,  chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 },
+    { id: 'EV-04', model: 'Rivian R1T',      soc: 22.0, maxKw: 50.0, reqKw: 50.0, actKw: 50.0, charging: true, estMins: 65, priority: 'HIGH',   batteryCapacityKwh: 135.0, chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 },
+    { id: 'EV-05', model: 'Audi e-tron',     soc: 91.0, maxKw: 11.0, reqKw: 11.0, actKw: 11.0, charging: true, estMins: 12, priority: 'LOW',    batteryCapacityKwh: 95.0,  chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 },
+    { id: 'EV-06', model: 'BMW i4',          soc: 50.0, maxKw: 22.0, reqKw: 22.0, actKw: 22.0, charging: true, estMins: 40, priority: 'MEDIUM', batteryCapacityKwh: 83.0,  chargeEfficiency: 0.92, minSoc: 10.0, maxSoc: 100.0 }
+  ],
+  requestedEvLoadKw: 53.0,
+  actualEvLoadKw: 53.0,
+  evLoadReductionKw: 0.0,
+  smartChargingActive: false,
+
+  batterySoc: 74.0,
+  batteryPowerKw: -35.0,
+  batteryMode: 'AUTO',
+  batteryTempC: 28.4,
+  batteryTempStatus: 'NORMAL',
+  batteryCapacityKwh: 400.0,
+  maxChargeKw: 50.0,
+  maxDischargeKw: 60.0,
+  minSoc: 20.0,
+  maxSoc: 95.0,
+  chargeEff: 0.95,
+  dischargeEff: 0.95,
+
+  gridConnected: true,
+  gridPowerKw: 143.0,
+  gridVoltage: 415.0,
+  gridFreq: 50.00,
+  gridCurrent: 435.2,
+  activePowerKw: 301.0,
+  reactivePowerKvar: 87.8,
+  apparentPowerKva: 313.5,
+  powerFactor: 0.960,
+  thdPercent: 2.1,
+
+  islandDeficitKw: 0.0,
+  islandResidualDeficitKw: 0.0,
+  islandShedLoadKw: 0.0,
+  islandServedLoadKw: 301.0,
+  islandStability: 'STABLE',
+
+  activeFault: 'normal',
+  systemHealthScore: 96,
+  systemHealthState: 'HEALTHY',
+  isPaused: false,
+  events: [],
+
+  _powerBalanceValid: true,
+  _powerBalanceKw: 0.00
+};
+
+// Deep clone function
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+// Active SCADA State Object initialized from baseline
+let scadaState = deepClone(INITIAL_STATE);
+scadaState.events = [];
+
+// Simulation timing
+const SIMULATION_TIMESTEP_SEC = 1.4; // 1.4 seconds
+let simTimer = null;
+
+// ============================================================================
+// 2. CORE DETERMINISTIC SIMULATION PIPELINE
+// ============================================================================
+function runSimulationCycle() {
+  if (scadaState.isPaused) return;
+
+  // 1. Reset cycle working variables (preserves configured loads)
+  resetDerivedStates();
+
+  // 2. Calculate Base Feeder Loads
+  calculateTotalLoad();
+
+  // 3. Calculate EV Smart Charging (Strict Breaker & SOC Enforcement)
+  calculateEVCharging();
+
+  // 4. Calculate Clean Renewable Generation & Potential
+  calculateRenewableGeneration();
+
+  // 5. Calculate Initial Battery Dispatch (Automated vs Forced vs Idle)
+  calculateBatteryDispatch();
+
+  // 6. Calculate Grid Coupling, Island Dynamics & Load Shedding
+  calculatePowerBalance();
+
+  // 7. Calculate Battery Final Energy & SOC Integration
+  updateBatteryEnergyAndThermal();
+
+  // 8. Apply Electrical Protection & Fault Overrides
+  applyFaultPhysics();
+
+  // 9. Calculate Dynamic Multi-Factor Health Index
+  updateSystemHealth();
+
+  // 10. Mathematically Conserved Power Balance Verification
+  validatePowerBalance();
+
+  // 11. Synchronize UI Across All Pages
+  updateDashboardUI();
+  updateChartsUI();
+  updatePowerFlowDiagram();
+}
+
+// ----------------------------------------------------------------------------
+// STEP 1: RESET DERIVED STATES
+// ----------------------------------------------------------------------------
+function resetDerivedStates() {
+  ['factory', 'hvac', 'lighting', 'motors'].forEach(key => {
+    const l = scadaState.loads[key];
+    l.shedLoad = 0.0;
+    l.servedLoad = l.enabled ? Math.max(0, l.configuredLoad) : 0.0;
+  });
+  scadaState.loads.ev.shedLoad = 0.0;
+  scadaState.islandDeficitKw = 0.0;
+  scadaState.islandResidualDeficitKw = 0.0;
+  scadaState.islandShedLoadKw = 0.0;
+  scadaState.curtailedRenewableKw = 0.0;
+}
+
+// ----------------------------------------------------------------------------
+// STEP 2: CALCULATE TOTAL LOAD (Base Non-EV Loads)
+// ----------------------------------------------------------------------------
+function calculateTotalLoad() {
+  let confTotal = 0.0;
+  let reqTotal = 0.0;
+
+  ['factory', 'hvac', 'lighting', 'motors'].forEach(key => {
+    const l = scadaState.loads[key];
+    confTotal += Math.max(0, l.configuredLoad);
+    l.requestedLoad = l.enabled ? Math.max(0, l.configuredLoad) : 0.0;
+    reqTotal += l.requestedLoad;
+  });
+
+  scadaState.totalBaseConfiguredKw = parseFloat(confTotal.toFixed(1));
+  scadaState.totalBaseServedKw = parseFloat(reqTotal.toFixed(1));
+}
+
+// ----------------------------------------------------------------------------
+// STEP 3: EV SMART CHARGING & SOC PHYSICS (Strict Breaker Gating)
+// ----------------------------------------------------------------------------
+function calculateEVCharging() {
+  const dtHours = SIMULATION_TIMESTEP_SEC / 3600.0;
+  const evBreakerEnabled = scadaState.loads.ev.enabled;
+
+  // When EV breaker is disabled: power MUST be 0 and SOC MUST NOT increase
+  if (!evBreakerEnabled) {
+    scadaState.evs.forEach(ev => {
+      ev.actKw = 0.0;
+      ev.estMins = ev.soc >= ev.maxSoc ? 'COMPLETE' : 'FEEDER OFF';
+    });
+    scadaState.requestedEvLoadKw = 0.0;
+    scadaState.actualEvLoadKw = 0.0;
+    scadaState.evLoadReductionKw = 0.0;
+    scadaState.smartChargingActive = false;
+    scadaState.loads.ev.requestedLoad = 0.0;
+    scadaState.loads.ev.servedLoad = 0.0;
+    scadaState.loads.ev.shedLoad = 0.0;
+    return;
+  }
+
+  // Calculate requested load from active, non-full EVs
+  let reqTotal = 0.0;
+  scadaState.evs.forEach(ev => {
+    // Respect nameplate rating and SOC upper limit
+    ev.reqKw = Math.min(ev.maxKw, Math.max(0, ev.reqKw));
+    if (ev.charging && ev.soc < ev.maxSoc) {
+      reqTotal += ev.reqKw;
+    } else {
+      if (ev.soc >= ev.maxSoc) {
+        ev.soc = ev.maxSoc;
+        ev.charging = false;
+        ev.actKw = 0.0;
+      }
+    }
+  });
+
+  scadaState.requestedEvLoadKw = parseFloat(reqTotal.toFixed(1));
+  scadaState.loads.ev.requestedLoad = scadaState.requestedEvLoadKw;
+
+  // Smart Charging Curtailment if aggregate substation load exceeds 330 kW
+  const PEAK_THRESHOLD = 330.0;
+  const uncurtailedTotal = scadaState.totalBaseServedKw + reqTotal;
+
+  if (uncurtailedTotal > PEAK_THRESHOLD && reqTotal > 0.0) {
+    scadaState.smartChargingActive = true;
+    let neededCut = uncurtailedTotal - PEAK_THRESHOLD;
+
+    // Curtail high-SOC vehicles first to preserve low-SOC cars
+    const sortedIndices = scadaState.evs
+      .map((ev, index) => ({ ev, index }))
+      .sort((a, b) => b.ev.soc - a.ev.soc);
+
+    sortedIndices.forEach(({ ev }) => {
+      if (ev.charging && ev.soc < ev.maxSoc && neededCut > 0.0) {
+        const minPilot = 6.0; // 6 kW minimum pilot standard
+        const reducible = Math.max(0.0, ev.reqKw - minPilot);
+        const cut = Math.min(neededCut, reducible);
+        ev.actKw = parseFloat((ev.reqKw - cut).toFixed(1));
+        neededCut -= cut;
+      } else if (ev.charging && ev.soc < ev.maxSoc) {
+        ev.actKw = ev.reqKw;
+      } else {
+        ev.actKw = 0.0;
+      }
+    });
+
+    let actSum = 0.0;
+    scadaState.evs.forEach(ev => { actSum += ev.actKw; });
+    scadaState.actualEvLoadKw = parseFloat(actSum.toFixed(1));
+    scadaState.evLoadReductionKw = parseFloat(Math.max(0.0, reqTotal - actSum).toFixed(1));
+  } else {
+    scadaState.smartChargingActive = false;
+    scadaState.evs.forEach(ev => {
+      ev.actKw = (ev.charging && ev.soc < ev.maxSoc) ? ev.reqKw : 0.0;
+    });
+    scadaState.actualEvLoadKw = scadaState.requestedEvLoadKw;
+    scadaState.evLoadReductionKw = 0.0;
+  }
+
+  // Energy & SOC Integration using simulation timestep
+  scadaState.evs.forEach(ev => {
+    if (ev.charging && ev.actKw > 0.0 && ev.soc < ev.maxSoc) {
+      const addedKwh = ev.actKw * dtHours * ev.chargeEfficiency;
+      const deltaSoc = (addedKwh / ev.batteryCapacityKwh) * 100.0;
+      ev.soc = Math.min(ev.maxSoc, ev.soc + deltaSoc);
+
+      // Remaining charging time calculation: (E_rem) / (P_act * eff)
+      const remainingKwh = (ev.maxSoc - ev.soc) / 100.0 * ev.batteryCapacityKwh;
+      const hoursLeft = remainingKwh / (ev.actKw * ev.chargeEfficiency);
+      ev.estMins = Math.max(1, Math.round(hoursLeft * 60.0));
+    } else if (ev.soc >= ev.maxSoc) {
+      ev.soc = ev.maxSoc;
+      ev.charging = false;
+      ev.actKw = 0.0;
+      ev.estMins = 'COMPLETE';
+    } else {
+      ev.actKw = 0.0;
+      ev.estMins = 'STANDBY';
+    }
+  });
+
+  scadaState.loads.ev.servedLoad = scadaState.actualEvLoadKw;
+  scadaState.loads.ev.shedLoad = parseFloat(Math.max(0.0, scadaState.loads.ev.requestedLoad - scadaState.loads.ev.servedLoad).toFixed(1));
+}
+
+// ----------------------------------------------------------------------------
+// STEP 4: CLEAN RENEWABLE GENERATION
+// ----------------------------------------------------------------------------
+function calculateRenewableGeneration() {
+  const solar = Math.max(0.0, scadaState.solarKw);
+  const wind  = Math.max(0.0, scadaState.windKw);
+  scadaState.totalRenewableKw = parseFloat((solar + wind).toFixed(1));
+
+  const totalDemand = scadaState.totalBaseServedKw + scadaState.actualEvLoadKw;
+  scadaState.renewableSupplyCoveragePct = totalDemand > 0.0
+    ? parseFloat(Math.min(100.0, (scadaState.totalRenewableKw / totalDemand) * 100.0).toFixed(1))
+    : 100.0;
+
+  if (scadaState.totalRenewableKw >= totalDemand) {
+    scadaState.renewableSurplusKw = parseFloat((scadaState.totalRenewableKw - totalDemand).toFixed(1));
+    scadaState.renewableDeficitKw = 0.0;
+  } else {
+    scadaState.renewableSurplusKw = 0.0;
+    scadaState.renewableDeficitKw = parseFloat((totalDemand - scadaState.totalRenewableKw).toFixed(1));
+  }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 5: BATTERY DISPATCH DETERMINATION
+// ----------------------------------------------------------------------------
+function calculateBatteryDispatch() {
+  const dtHours = SIMULATION_TIMESTEP_SEC / 3600.0;
+
+  // Maximum physically deliverable charge power without exceeding maxSoc (95%)
+  const headroomKwh = Math.max(0.0, ((scadaState.maxSoc - scadaState.batterySoc) / 100.0) * scadaState.batteryCapacityKwh);
+  const maxPossibleChargeKw = (scadaState.batterySoc >= scadaState.maxSoc)
+    ? 0.0
+    : Math.min(scadaState.maxChargeKw, (headroomKwh / (dtHours * scadaState.chargeEff)));
+
+  // Maximum physically deliverable discharge power without violating minSoc (20%)
+  const availableKwh = Math.max(0.0, ((scadaState.batterySoc - scadaState.minSoc) / 100.0) * scadaState.batteryCapacityKwh);
+  const maxPossibleDischargeKw = (scadaState.batterySoc <= scadaState.minSoc)
+    ? 0.0
+    : Math.min(scadaState.maxDischargeKw, (availableKwh * scadaState.dischargeEff) / dtHours);
+
+  scadaState._maxPossibleChargeKw = parseFloat(maxPossibleChargeKw.toFixed(2));
+  scadaState._maxPossibleDischargeKw = parseFloat(maxPossibleDischargeKw.toFixed(2));
+
+  // Determine dispatch intent
+  if (scadaState.batteryMode === 'IDLE') {
+    scadaState.batteryPowerKw = 0.0; // IDLE strictly enforces zero dispatch
+  } else if (scadaState.batteryMode === 'FORCE_CHARGE') {
+    scadaState.batteryPowerKw = parseFloat(maxPossibleChargeKw.toFixed(1));
+  } else if (scadaState.batteryMode === 'FORCE_DISCHARGE') {
+    scadaState.batteryPowerKw = parseFloat((-maxPossibleDischargeKw).toFixed(1));
+  } else {
+    // AUTO Mode: dispatch against renewable surplus or deficit
+    if (scadaState.renewableSurplusKw > 0.0) {
+      scadaState.batteryPowerKw = parseFloat(Math.min(scadaState.renewableSurplusKw, maxPossibleChargeKw).toFixed(1));
+    } else if (scadaState.renewableDeficitKw > 0.0) {
+      scadaState.batteryPowerKw = parseFloat((-Math.min(scadaState.renewableDeficitKw, maxPossibleDischargeKw)).toFixed(1));
+    } else {
+      scadaState.batteryPowerKw = 0.0;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 6: GRID COUPLING, ISLANDING, AND LOAD SHEDDING
+// ----------------------------------------------------------------------------
+function calculatePowerBalance() {
+  const battChargingKw  = scadaState.batteryPowerKw > 0.0 ? scadaState.batteryPowerKw : 0.0;
+  const battDischargeKw = scadaState.batteryPowerKw < 0.0 ? Math.abs(scadaState.batteryPowerKw) : 0.0;
+
+  if (scadaState.gridConnected) {
+    // --- GRID-CONNECTED OPERATION ---
+    const totalServedLoads = scadaState.loads.factory.servedLoad
+      + scadaState.loads.hvac.servedLoad
+      + scadaState.loads.lighting.servedLoad
+      + scadaState.loads.motors.servedLoad
+      + scadaState.loads.ev.servedLoad;
+
+    scadaState.totalSystemLoadKw = parseFloat((totalServedLoads + battChargingKw).toFixed(1));
+    scadaState.islandDeficitKw = 0.0;
+    scadaState.islandResidualDeficitKw = 0.0;
+    scadaState.islandShedLoadKw = 0.0;
+    scadaState.islandServedLoadKw = scadaState.totalSystemLoadKw;
+    scadaState.islandStability = 'STABLE';
+
+    // Grid Power Equation: P_grid = Total_Served + P_batt_charge - P_renewables - P_batt_discharge
+    // Positive = Import from Grid, Negative = Export to Grid
+    const netGrid = (totalServedLoads + battChargingKw) - (scadaState.totalRenewableKw + battDischargeKw);
+    scadaState.gridPowerKw = parseFloat(netGrid.toFixed(1));
+
+    if (scadaState.activeFault === 'normal') {
+      scadaState.gridVoltage = 415.0;
+      scadaState.gridFreq = 50.00;
+    }
+
+  } else {
+    // --- ISLANDED MICROGRID OPERATION ---
+    scadaState.gridPowerKw = 0.0; // Strictly zero grid exchange while disconnected
+
+    // Available local generation
+    const availBatt = (scadaState.batteryMode !== 'IDLE') ? scadaState._maxPossibleDischargeKw : 0.0;
+    const totalAvailLocalGen = scadaState.totalRenewableKw + availBatt;
+
+    // Total requested demand
+    const totalRequested = scadaState.loads.factory.requestedLoad
+      + scadaState.loads.hvac.requestedLoad
+      + scadaState.loads.lighting.requestedLoad
+      + scadaState.loads.motors.requestedLoad
+      + scadaState.loads.ev.servedLoad;
+
+    if (totalRequested > totalAvailLocalGen) {
+      // Generation deficit requires priority load shedding
+      const initialDeficit = totalRequested - totalAvailLocalGen;
+      scadaState.islandDeficitKw = parseFloat(initialDeficit.toFixed(1));
+
+      let remainingDeficit = initialDeficit;
+      // Priority Shed Order: EV (NON-CRITICAL) -> HVAC (NON-CRITICAL) -> Motors (IMPORTANT) -> Factory (IMPORTANT) -> Lighting (CRITICAL)
+      const priorityOrder = ['ev', 'hvac', 'motors', 'factory', 'lighting'];
+
+      priorityOrder.forEach(key => {
+        if (remainingDeficit <= 0.01) return;
+        const l = scadaState.loads[key];
+        const canShed = l.servedLoad;
+        if (canShed <= 0.0) return;
+
+        const shedAmt = Math.min(remainingDeficit, canShed);
+        l.shedLoad += parseFloat(shedAmt.toFixed(1));
+        l.servedLoad = parseFloat(Math.max(0.0, l.servedLoad - shedAmt).toFixed(1));
+        remainingDeficit -= shedAmt;
+      });
+
+      remainingDeficit = Math.max(0.0, remainingDeficit);
+      scadaState.islandResidualDeficitKw = parseFloat(remainingDeficit.toFixed(1));
+
+      // Re-sum actual served loads after shedding
+      const totalServedAfterShed = scadaState.loads.factory.servedLoad
+        + scadaState.loads.hvac.servedLoad
+        + scadaState.loads.lighting.servedLoad
+        + scadaState.loads.motors.servedLoad
+        + scadaState.loads.ev.servedLoad;
+
+      scadaState.islandShedLoadKw = parseFloat((totalRequested - totalServedAfterShed).toFixed(1));
+      scadaState.islandServedLoadKw = parseFloat(totalServedAfterShed.toFixed(1));
+
+      // Battery dispatch in island mode: supply remaining load up to available power
+      if (scadaState.batteryMode !== 'IDLE') {
+        const battRequired = Math.max(0.0, totalServedAfterShed - scadaState.totalRenewableKw);
+        const actualBattDischarge = Math.min(battRequired, availBatt);
+        scadaState.batteryPowerKw = parseFloat((-actualBattDischarge).toFixed(1));
+      } else {
+        scadaState.batteryPowerKw = 0.0;
+      }
+
+      scadaState.totalSystemLoadKw = parseFloat(totalServedAfterShed.toFixed(1));
+
+      // Stability assessment: Do not classify as stable merely because shedding occurred!
+      if (remainingDeficit > 5.0) {
+        scadaState.islandStability = 'MICROGRID INSTABILITY';
+        scadaState.gridFreq = parseFloat(Math.max(46.0, 50.00 - (remainingDeficit / 12.0)).toFixed(2));
+        scadaState.gridVoltage = parseFloat(Math.max(300.0, 415.0 - (remainingDeficit * 1.5)).toFixed(1));
+      } else {
+        scadaState.islandStability = 'LOAD SHED ACTIVE';
+        scadaState.gridFreq = 49.75;
+        scadaState.gridVoltage = 408.0;
+      }
+
+    } else {
+      // Local generation meets or exceeds demand
+      scadaState.islandDeficitKw = 0.0;
+      scadaState.islandResidualDeficitKw = 0.0;
+      scadaState.islandShedLoadKw = 0.0;
+      scadaState.islandServedLoadKw = parseFloat(totalRequested.toFixed(1));
+      scadaState.islandStability = 'STABLE';
+
+      // If battery can absorb surplus, charge it; otherwise curtail surplus renewables
+      const surplus = scadaState.totalRenewableKw - totalRequested;
+      if (surplus > 0.0 && scadaState.batteryMode === 'AUTO' && scadaState.batterySoc < scadaState.maxSoc) {
+        const chg = Math.min(surplus, scadaState._maxPossibleChargeKw);
+        scadaState.batteryPowerKw = parseFloat(chg.toFixed(1));
+        const excess = surplus - chg;
+        scadaState.curtailedRenewableKw = parseFloat(Math.max(0.0, excess).toFixed(1));
+      } else if (surplus > 0.0) {
+        scadaState.batteryPowerKw = 0.0;
+        scadaState.curtailedRenewableKw = parseFloat(surplus.toFixed(1));
+      } else {
+        // Renewable deficit covered by battery
+        const def = totalRequested - scadaState.totalRenewableKw;
+        if (scadaState.batteryMode !== 'IDLE') {
+          scadaState.batteryPowerKw = parseFloat((-Math.min(def, availBatt)).toFixed(1));
+        } else {
+          scadaState.batteryPowerKw = 0.0;
+        }
+      }
+
+      const activeChg = scadaState.batteryPowerKw > 0.0 ? scadaState.batteryPowerKw : 0.0;
+      scadaState.totalSystemLoadKw = parseFloat((totalRequested + activeChg).toFixed(1));
+
+      if (scadaState.activeFault === 'normal') {
+        scadaState.gridFreq = 50.00;
+        scadaState.gridVoltage = 415.0;
+      }
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 7: BATTERY ENERGY, SOC & THERMAL INTEGRATION
+// ----------------------------------------------------------------------------
+function updateBatteryEnergyAndThermal() {
+  const dtHours = SIMULATION_TIMESTEP_SEC / 3600.0;
+
+  if (scadaState.batteryPowerKw > 0.0) {
+    // Charging: Energy added = P * dt * eff
+    const energyAdded = scadaState.batteryPowerKw * dtHours * scadaState.chargeEff;
+    const socDelta = (energyAdded / scadaState.batteryCapacityKwh) * 100.0;
+    scadaState.batterySoc = Math.min(scadaState.maxSoc, scadaState.batterySoc + socDelta);
+  } else if (scadaState.batteryPowerKw < 0.0) {
+    // Discharging: Energy extracted = (P * dt) / eff
+    const energyExtracted = (Math.abs(scadaState.batteryPowerKw) * dtHours) / scadaState.dischargeEff;
+    const socDelta = (energyExtracted / scadaState.batteryCapacityKwh) * 100.0;
+    scadaState.batterySoc = Math.max(scadaState.minSoc, scadaState.batterySoc - socDelta);
+  }
+  // Hard clamp SOC within physical boundaries
+  scadaState.batterySoc = parseFloat(Math.max(scadaState.minSoc, Math.min(scadaState.maxSoc, scadaState.batterySoc)).toFixed(2));
+
+  // Thermal model (P² I²R internal dissipation, ambient cooling toward 25°C)
+  if (scadaState.activeFault !== 'batovertemp') {
+    const pRatio = Math.abs(scadaState.batteryPowerKw) / 50.0;
+    const targetTemp = 25.0 + (pRatio * pRatio * 16.0);
+    scadaState.batteryTempC += (targetTemp - scadaState.batteryTempC) * 0.05;
+    scadaState.batteryTempC = parseFloat(Math.max(20.0, scadaState.batteryTempC).toFixed(1));
+
+    if (scadaState.batteryTempC > 55.0)      scadaState.batteryTempStatus = 'OVER TEMPERATURE';
+    else if (scadaState.batteryTempC > 45.0) scadaState.batteryTempStatus = 'HIGH TEMP';
+    else if (scadaState.batteryTempC > 35.0) scadaState.batteryTempStatus = 'WARM';
+    else                                     scadaState.batteryTempStatus = 'NORMAL';
+  }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 8: ELECTRICAL PROTECTION & FAULT PHYSICS OVERRIDES
+// ----------------------------------------------------------------------------
+function applyFaultPhysics() {
+  let v = scadaState.gridVoltage;
+  let f = scadaState.gridFreq;
+  let pf = 0.960;
+  let thd = 2.1;
+
+  switch (scadaState.activeFault) {
+    case 'overload':
+      v = 401.0; pf = 0.890; thd = 4.4;
+      break;
+    case 'overvoltage':
+      v = 478.0; thd = 3.8;
+      break;
+    case 'undervoltage':
+      v = 348.0; thd = 4.2;
+      break;
+    case 'shortcircuit':
+      v = 42.0; f = 48.90; pf = 0.350; thd = 16.5;
+      break;
+    case 'freqdev':
+      f = 48.42;
+      break;
+    case 'batovertemp':
+      scadaState.batteryTempC = 68.4;
+      scadaState.batteryTempStatus = 'OVER TEMPERATURE';
+      break;
+    case 'singlephasing':
+      v = 382.0; thd = 9.8;
+      break;
+    default:
+      // normal: values retained from power balance
+      break;
+  }
+
+  // Prevent NaN / Infinity / Impossible values
+  v   = (isFinite(v) && v > 0.0) ? v : 415.0;
+  f   = (isFinite(f) && f > 0.0) ? f : 50.00;
+  pf  = (isFinite(pf) && pf > 0.0 && pf <= 1.0) ? pf : 0.960;
+  thd = (isFinite(thd) && thd >= 0.0) ? thd : 2.1;
+
+  scadaState.gridVoltage = parseFloat(v.toFixed(1));
+  scadaState.gridFreq = parseFloat(f.toFixed(2));
+  scadaState.powerFactor = parseFloat(pf.toFixed(3));
+  scadaState.thdPercent = parseFloat(thd.toFixed(1));
+
+  // Three-Phase AC Vector Formulations
+  // S = P / PF;  I = (S * 1000) / (√3 * V);  Q = √(S² - P²)
+  const activeKw = Math.max(1.0, scadaState.totalSystemLoadKw);
+  const apparentKva = activeKw / scadaState.powerFactor;
+  const currentA = (apparentKva * 1000.0) / (Math.sqrt(3.0) * scadaState.gridVoltage);
+  const reactiveKvar = Math.sqrt(Math.max(0.0, (apparentKva * apparentKva) - (activeKw * activeKw)));
+
+  scadaState.activePowerKw = parseFloat(activeKw.toFixed(1));
+  scadaState.apparentPowerKva = parseFloat(apparentKva.toFixed(1));
+  scadaState.gridCurrent = parseFloat(currentA.toFixed(1));
+  scadaState.reactivePowerKvar = parseFloat(reactiveKvar.toFixed(1));
+}
+
+// ----------------------------------------------------------------------------
+// STEP 9: SYSTEM HEALTH EVALUATION
+// ----------------------------------------------------------------------------
+function updateSystemHealth() {
+  let score = 98;
+
+  // Voltage deviation penalty
+  const vDelta = Math.abs(scadaState.gridVoltage - 415.0);
+  if (vDelta > 60.0) score -= 35;
+  else if (vDelta > 30.0) score -= 20;
+  else if (vDelta > 15.0) score -= 10;
+
+  // Frequency deviation penalty
+  const fDelta = Math.abs(scadaState.gridFreq - 50.00);
+  if (fDelta > 1.2) score -= 30;
+  else if (fDelta > 0.5) score -= 15;
+
+  // Battery temperature penalty
+  if (scadaState.batteryTempC > 55.0) score -= 40;
+  else if (scadaState.batteryTempC > 40.0) score -= 15;
+
+  // Island stability penalty
+  if (scadaState.islandStability === 'MICROGRID INSTABILITY') score -= 45;
+  else if (scadaState.islandStability === 'LOAD SHED ACTIVE') score -= 20;
+
+  // Active fault penalties
+  if (scadaState.activeFault !== 'normal') {
+    score -= 40;
+    if (scadaState.activeFault === 'shortcircuit') score = Math.min(score, 18);
+  }
+
+  scadaState.systemHealthScore = Math.max(5, Math.min(99, Math.round(score)));
+  if (scadaState.systemHealthScore >= 85) scadaState.systemHealthState = 'HEALTHY';
+  else if (scadaState.systemHealthScore >= 60) scadaState.systemHealthState = 'WARNING';
+  else scadaState.systemHealthState = 'CRITICAL';
+}
+
+// ----------------------------------------------------------------------------
+// STEP 10: CONSERVED POWER BALANCE VALIDATION
+// ----------------------------------------------------------------------------
+function validatePowerBalance() {
+  // Clear Sign Conventions at Central AC Bus:
+  // INFLOWS (Sources to Bus):
+  //   - Renewable Generation (Solar + Wind) [minus curtailment in island]
+  //   - Battery Discharge (+ kW into bus)
+  //   - Grid Import (+ kW into bus when gridPowerKw > 0)
+  const actualRenewables = scadaState.gridConnected 
+    ? scadaState.totalRenewableKw 
+    : (scadaState.totalRenewableKw - (scadaState.curtailedRenewableKw || 0.0));
+  const battDischarge = scadaState.batteryPowerKw < 0.0 ? Math.abs(scadaState.batteryPowerKw) : 0.0;
+  const gridImport = (scadaState.gridConnected && scadaState.gridPowerKw > 0.0) ? scadaState.gridPowerKw : 0.0;
+  const totalInflows = actualRenewables + battDischarge + gridImport;
+
+  // OUTFLOWS (Demands/Sinks from Bus):
+  //   - Total Served Consumer Loads (Factory + HVAC + Lighting + Motors + EV)
+  //   - Battery Charging (+ kW into battery)
+  //   - Grid Export (+ kW exported to grid when gridPowerKw < 0)
+  const servedLoads = scadaState.loads.factory.servedLoad
+    + scadaState.loads.hvac.servedLoad
+    + scadaState.loads.lighting.servedLoad
+    + scadaState.loads.motors.servedLoad
+    + scadaState.loads.ev.servedLoad;
+  const battCharge = scadaState.batteryPowerKw > 0.0 ? scadaState.batteryPowerKw : 0.0;
+  const gridExport = (scadaState.gridConnected && scadaState.gridPowerKw < 0.0) ? Math.abs(scadaState.gridPowerKw) : 0.0;
+  const totalOutflows = servedLoads + battCharge + gridExport;
+
+  // Residual Imbalance
+  const residual = Math.abs(totalInflows - totalOutflows);
+  scadaState._powerBalanceKw = parseFloat(residual.toFixed(2));
+  scadaState._powerBalanceValid = residual <= 0.05; // 50 Watt tolerance for floating point precision
+}
+
+// ============================================================================
+// 3. UI SYNCHRONIZATION
+// ============================================================================
+function updateDashboardUI() {
+  const now = new Date();
+  setText('clockDisplay', now.toLocaleTimeString('en-US', { hour12: false }) + ' UTC');
+
+  // Topbar Status
+  const topBadge = document.getElementById('topStatusBadge');
+  const topLed = document.getElementById('topStatusLed');
+  const topText = document.getElementById('topStatusText');
+
+  if (scadaState.activeFault !== 'normal') {
+    topBadge.className = 'status-indicator-badge critical';
+    topLed.style.background = 'var(--red)';
+    topText.innerText = 'FAULT DETECTED';
+  } else if (!scadaState.gridConnected) {
+    topBadge.className = scadaState.islandStability === 'MICROGRID INSTABILITY' ? 'status-indicator-badge critical' : 'status-indicator-badge warning';
+    topLed.style.background = scadaState.islandStability === 'MICROGRID INSTABILITY' ? 'var(--red)' : 'var(--amber)';
+    topText.innerText = scadaState.islandStability;
+  } else {
+    topBadge.className = 'status-indicator-badge';
+    topLed.style.background = 'var(--emerald)';
+    topText.innerText = 'SYSTEM ONLINE';
+  }
+
+  setText('topGridModeChip', scadaState.gridConnected ? 'GRID-TIED' : 'ISLANDED');
+
+  // KPI Tiles
+  setText('cardGridPower', Math.abs(scadaState.gridPowerKw).toFixed(1));
+  const gridDir = scadaState.gridConnected ? (scadaState.gridPowerKw >= 0.0 ? 'IMPORT' : 'EXPORT') : 'ISLANDED';
+  setText('cardGridDirBadge', gridDir);
+  setText('cardGridFreq', scadaState.gridFreq.toFixed(2) + ' Hz');
+
+  setText('cardRenewGen', scadaState.totalRenewableKw.toFixed(1));
+  setText('cardRenewCovBadge', scadaState.renewableSupplyCoveragePct.toFixed(1) + '% COV');
+
+  setText('cardBatterySoc', Math.round(scadaState.batterySoc) + '%');
+  setText('cardBatteryKw', (scadaState.batteryPowerKw >= 0.0 ? '+' : '') + scadaState.batteryPowerKw.toFixed(1) + ' kW');
+  setText('cardBatteryModeBadge', `${scadaState.batteryMode} (${scadaState.batteryPowerKw > 0.0 ? 'CHG' : (scadaState.batteryPowerKw < 0.0 ? 'DISCHG' : 'IDLE')})`);
+  setText('cardBatteryTemp', scadaState.batteryTempC.toFixed(1) + ' °C');
+
+  setText('cardTotalLoad', scadaState.totalSystemLoadKw.toFixed(1));
+  setText('cardLoadPeakBadge', scadaState.totalSystemLoadKw > 330.0 ? 'PEAK LOAD' : 'NORMAL LOAD');
+
+  setText('cardGridVolt', scadaState.gridVoltage.toFixed(1));
+  setText('cardGridFreqBig', scadaState.gridFreq.toFixed(2));
+  setText('cardGridPF', scadaState.powerFactor.toFixed(3));
+
+  setText('cardHealthNum', scadaState.systemHealthScore + '%');
+  setText('bigHealthPct', scadaState.systemHealthScore + '%');
+  setText('cardHealthPill', scadaState.systemHealthState);
+  setText('healthScorePill', scadaState.systemHealthState);
+  setText('cardActiveFaultBadge', scadaState.activeFault === 'normal' ? 'NO FAULTS' : scadaState.activeFault.toUpperCase());
+
+  // Balance Badge
+  const balPill = document.getElementById('cardBalancePill');
+  if (balPill) {
+    if (scadaState._powerBalanceValid) {
+      balPill.className = 'tech-badge badge-green';
+      balPill.innerText = `BALANCE CONSERVED (\u0394 = ${scadaState._powerBalanceKw.toFixed(2)} kW)`;
+    } else {
+      balPill.className = 'tech-badge badge-red';
+      balPill.innerText = `RESIDUAL IMBALANCE: ${scadaState._powerBalanceKw.toFixed(2)} kW`;
+    }
+  }
+
+  // Circular Health Gauge
+  const hCircle = document.getElementById('healthSvgCircle');
+  if (hCircle) {
+    const offset = 264.0 - (264.0 * scadaState.systemHealthScore) / 100.0;
+    hCircle.style.strokeDashoffset = offset;
+    hCircle.style.stroke = scadaState.systemHealthScore >= 85 ? 'var(--cyan)' : (scadaState.systemHealthScore >= 60 ? 'var(--amber)' : 'var(--red)');
+  }
+
+  // Grid Monitor
+  setText('gridVolt', scadaState.gridVoltage.toFixed(1));
+  setText('gridFreq', scadaState.gridFreq.toFixed(2));
+  setText('gridCurrent', scadaState.gridCurrent.toFixed(1));
+  setText('gridActiveP', scadaState.activePowerKw.toFixed(1));
+  setText('gridReactiveQ', scadaState.reactivePowerKvar.toFixed(1));
+  setText('gridApparentS', scadaState.apparentPowerKva.toFixed(1));
+  setText('gridPF', scadaState.powerFactor.toFixed(3));
+  setText('gridTHD', scadaState.thdPercent.toFixed(1));
+
+  // Renewable Page
+  setText('renewSolarKw', scadaState.solarKw.toFixed(1));
+  setText('renewWindKw', scadaState.windKw.toFixed(1));
+  setText('renewTotalKw', scadaState.totalRenewableKw.toFixed(1));
+  setText('renewCoveragePct', scadaState.renewableSupplyCoveragePct.toFixed(1) + '%');
+  setText('renewSurplusKw', scadaState.renewableSurplusKw.toFixed(1));
+  setText('renewDeficitKw', scadaState.renewableDeficitKw.toFixed(1));
+
+  // Battery Page
+  setText('bmsSocBig', Math.round(scadaState.batterySoc) + '%');
+  setText('bmsPowerKw', (scadaState.batteryPowerKw >= 0.0 ? '+' : '') + scadaState.batteryPowerKw.toFixed(1));
+  setText('bmsTempC', scadaState.batteryTempC.toFixed(1));
+  setText('bmsStoredKwh', ((scadaState.batterySoc / 100.0) * scadaState.batteryCapacityKwh).toFixed(1));
+  setText('bmsThermalBadge', scadaState.batteryTempStatus);
+  setText('bmsOperatingStateText', scadaState.batteryPowerKw > 0.0 ? 'CHARGING' : (scadaState.batteryPowerKw < 0.0 ? 'DISCHARGING' : 'IDLE'));
+  setText('bmsDirectionNote', scadaState.batteryPowerKw > 0.0 ? 'Absorbing from Bus' : (scadaState.batteryPowerKw < 0.0 ? 'Discharging to Bus' : 'Float Standby'));
+
+  const bmsGauge = document.getElementById('bmsSocGaugeCircle');
+  if (bmsGauge) {
+    const offset = 471.0 - (471.0 * scadaState.batterySoc) / 100.0;
+    bmsGauge.style.strokeDashoffset = offset;
+    bmsGauge.style.stroke = scadaState.batterySoc > 20.0 ? 'var(--cyan)' : 'var(--red)';
+  }
+
+  // Feeder Breakers
+  setText('loadServedFactory', scadaState.loads.factory.enabled ? scadaState.loads.factory.servedLoad.toFixed(1) + ' kW' : 'SHED / OFF');
+  setText('loadServedHvac', scadaState.loads.hvac.enabled ? scadaState.loads.hvac.servedLoad.toFixed(1) + ' kW' : 'SHED / OFF');
+  setText('loadServedLighting', scadaState.loads.lighting.enabled ? scadaState.loads.lighting.servedLoad.toFixed(1) + ' kW' : 'SHED / OFF');
+  setText('loadServedMotors', scadaState.loads.motors.enabled ? scadaState.loads.motors.servedLoad.toFixed(1) + ' kW' : 'SHED / OFF');
+  setText('loadServedEv', scadaState.loads.ev.enabled ? scadaState.actualEvLoadKw.toFixed(1) + ' kW' : 'SHED / OFF');
+
+  // EV Smart Alert Banner
+  const evAlert = document.getElementById('evSmartAlertBanner');
+  if (evAlert) {
+    evAlert.style.display = scadaState.smartChargingActive ? 'flex' : 'none';
+    if (scadaState.smartChargingActive) {
+      setText('evBannerReq', scadaState.requestedEvLoadKw.toFixed(1) + ' kW');
+      setText('evBannerAct', scadaState.actualEvLoadKw.toFixed(1) + ' kW');
+      setText('evBannerRed', scadaState.evLoadReductionKw.toFixed(1) + ' kW');
+    }
+  }
+
+  // Island Microgrid Telemetry
+  const availBatt = (scadaState.batteryMode !== 'IDLE') ? scadaState._maxPossibleDischargeKw : 0.0;
+  setText('islandAvailGen', (scadaState.totalRenewableKw + availBatt).toFixed(1) + ' kW');
+  const reqTotalDemand = scadaState.loads.factory.requestedLoad + scadaState.loads.hvac.requestedLoad + scadaState.loads.lighting.requestedLoad + scadaState.loads.motors.requestedLoad + scadaState.loads.ev.requestedLoad;
+  setText('islandDemand', reqTotalDemand.toFixed(1) + ' kW');
+  setText('islandDeficit', scadaState.islandDeficitKw.toFixed(1) + ' kW');
+  setText('islandShedLoad', scadaState.islandShedLoadKw.toFixed(1) + ' kW');
+  setText('islandServedLoad', scadaState.islandServedLoadKw.toFixed(1) + ' kW');
+  setText('islandFreqVolt', `${scadaState.gridFreq.toFixed(2)} Hz / ${scadaState.gridVoltage.toFixed(1)} V`);
+  setText('microgridPillTag', scadaState.gridConnected ? 'GRID-TIED' : scadaState.islandStability);
+
+  updateEvBaysDom();
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = val;
+}
+
+// ----------------------------------------------------------------------------
+// 4. POWER FLOW DIAGRAM
+// ----------------------------------------------------------------------------
+function updatePowerFlowDiagram() {
+  const nodeSolar = document.getElementById('nodeSolar');
+  const nodeWind = document.getElementById('nodeWind');
+  const nodeBattery = document.getElementById('nodeBattery');
+  const nodeBus = document.getElementById('nodeBus');
+  const nodeGrid = document.getElementById('nodeGrid');
+  const nodeLoad = document.getElementById('nodeLoad');
+  const nodeEv = document.getElementById('nodeEv');
+
+  if (!nodeSolar || !nodeBus) return;
+
+  const getPos = (el) => ({
+    x: el.offsetLeft + el.offsetWidth / 2,
+    y: el.offsetTop + el.offsetHeight / 2
+  });
+
+  const pSolar = getPos(nodeSolar);
+  const pWind = getPos(nodeWind);
+  const pBattery = getPos(nodeBattery);
+  const pBus = getPos(nodeBus);
+  const pGrid = getPos(nodeGrid);
+  const pLoad = getPos(nodeLoad);
+  const pEv = getPos(nodeEv);
+
+  const makeCurve = (a, b) => {
+    const midX = (a.x + b.x) / 2;
+    return `M ${a.x} ${a.y} C ${midX} ${a.y}, ${midX} ${b.y}, ${b.x} ${b.y}`;
+  };
+
+  setSvgPath('path-solar', makeCurve(pSolar, pBus));
+  setSvgPath('path-solar-anim', makeCurve(pSolar, pBus));
+
+  setSvgPath('path-wind', makeCurve(pWind, pBus));
+  setSvgPath('path-wind-anim', makeCurve(pWind, pBus));
+
+  // Battery Path: Directed by power flow
+  if (scadaState.batteryPowerKw > 0.0) {
+    setSvgPath('path-battery', makeCurve(pBus, pBattery));
+    setSvgPath('path-battery-anim', makeCurve(pBus, pBattery));
+  } else {
+    setSvgPath('path-battery', makeCurve(pBattery, pBus));
+    setSvgPath('path-battery-anim', makeCurve(pBattery, pBus));
+  }
+
+  // Grid Path: Import (Grid -> Bus) or Export (Bus -> Grid)
+  if (scadaState.gridPowerKw >= 0.0) {
+    setSvgPath('path-grid', `M ${pGrid.x} ${pGrid.y} L ${pBus.x} ${pBus.y}`);
+    setSvgPath('path-grid-anim', `M ${pGrid.x} ${pGrid.y} L ${pBus.x} ${pBus.y}`);
+  } else {
+    setSvgPath('path-grid', `M ${pBus.x} ${pBus.y} L ${pGrid.x} ${pGrid.y}`);
+    setSvgPath('path-grid-anim', `M ${pBus.x} ${pBus.y} L ${pGrid.x} ${pGrid.y}`);
+  }
+
+  setSvgPath('path-load', makeCurve(pBus, pLoad));
+  setSvgPath('path-load-anim', makeCurve(pBus, pLoad));
+
+  setSvgPath('path-ev', makeCurve(pBus, pEv));
+  setSvgPath('path-ev-anim', makeCurve(pBus, pEv));
+
+  // Values
+  setText('nodeValSolar', scadaState.solarKw.toFixed(1) + ' kW');
+  setText('nodeValWind', scadaState.windKw.toFixed(1) + ' kW');
+  setText('nodeValBattery', (scadaState.batteryPowerKw >= 0.0 ? '+' : '') + scadaState.batteryPowerKw.toFixed(1) + ' kW');
+  setText('nodeBadgeBattery', Math.round(scadaState.batterySoc) + '% SOC');
+  setText('nodeValBus', scadaState.totalSystemLoadKw.toFixed(1) + ' kW');
+  setText('nodeValGrid', Math.abs(scadaState.gridPowerKw).toFixed(1) + ' kW');
+  setText('nodeBadgeGrid', scadaState.gridConnected ? (scadaState.gridPowerKw >= 0.0 ? 'IMPORT' : 'EXPORT') : 'ISLANDED');
+  setText('nodeValLoad', scadaState.totalBaseServedKw.toFixed(1) + ' kW');
+  setText('nodeValEv', scadaState.actualEvLoadKw.toFixed(1) + ' kW');
+
+  // Badges
+  setText('tagFlowSolar', `Solar \u2192 Bus: ${scadaState.solarKw.toFixed(1)} kW`);
+  setText('tagFlowWind', `Wind \u2192 Bus: ${scadaState.windKw.toFixed(1)} kW`);
+  setText('tagFlowBattery', scadaState.batteryPowerKw > 0.0 ? `Bus \u2192 Batt: +${scadaState.batteryPowerKw.toFixed(1)} kW` : `Batt \u2192 Bus: ${Math.abs(scadaState.batteryPowerKw).toFixed(1)} kW`);
+  setText('tagFlowGrid', scadaState.gridConnected ? (scadaState.gridPowerKw >= 0.0 ? `Grid \u2192 Bus: +${scadaState.gridPowerKw.toFixed(1)} kW` : `Bus \u2192 Grid: ${Math.abs(scadaState.gridPowerKw).toFixed(1)} kW`) : 'Grid Isolated (0.0 kW)');
+  setText('tagFlowLoad', `Bus \u2192 Load: ${scadaState.totalBaseServedKw.toFixed(1)} kW`);
+  setText('tagFlowEv', `Bus \u2192 EV: ${scadaState.actualEvLoadKw.toFixed(1)} kW`);
+}
+
+function setSvgPath(id, d) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute('d', d);
+}
+
+// ----------------------------------------------------------------------------
+// 5. BESS 8-CELL PACK BALANCER & BATTERY MODES
+// ----------------------------------------------------------------------------
+function initBmsCells() {
+  const container = document.getElementById('bmsCellPods');
+  if (!container) return;
+  container.innerHTML = '';
+
+  for (let i = 1; i <= 8; i++) {
+    const v = (3.28 + (i * 0.002)).toFixed(3);
+    const pod = document.createElement('div');
+    pod.className = 'cell-module-pod';
+    pod.innerHTML = `
+      <div class="cell-pod-top">
+        <span>CELL 0${i}</span>
+        <div class="cell-led-indicator"></div>
+      </div>
+      <div class="cell-charge-bar-track">
+        <div class="cell-charge-bar-fill" id="cellBar-${i}" style="height: ${scadaState.batterySoc}%;"></div>
+      </div>
+      <div class="font-mono" style="font-size:10.5px; font-weight:700; color:#fff; text-align:center;">${v} V</div>
+    `;
+    container.appendChild(pod);
+  }
+}
+
+function setBatteryMode(mode) {
+  scadaState.batteryMode = mode;
+  ['Auto', 'Charge', 'Discharge', 'Idle'].forEach(m => {
+    const btn = document.getElementById(`btnMode${m}`);
+    if (btn) btn.className = 'cmd-btn';
+  });
+
+  const activeBtn = document.getElementById(`btnMode${mode.replace('FORCE_', '').charAt(0) + mode.replace('FORCE_', '').slice(1).toLowerCase()}`);
+  if (activeBtn) activeBtn.className = 'cmd-btn cmd-btn-primary';
+
+  showToast(`BESS Storage Mode: ${mode}`, 'cyan');
+  addSystemEvent(`\ud83d\udd0b Battery operating mode set to ${mode}`);
+  runSimulationCycle();
+}
+
+// ----------------------------------------------------------------------------
+// 6. EV BAYS DOM
+// ----------------------------------------------------------------------------
+function updateEvBaysDom() {
+  const container = document.getElementById('evBaysContainer');
+  if (!container) return;
+
+  const fmtEst = (ev) => {
+    if (typeof ev.estMins === 'string') return ev.estMins;
+    if (!isFinite(ev.estMins) || ev.estMins <= 0) return 'WAITING';
+    return ev.estMins + 'm';
+  };
+
+  const chgStatus = (ev) => {
+    if (!scadaState.loads.ev.enabled) return 'FEEDER OFF';
+    if (ev.soc >= ev.maxSoc) return 'COMPLETE';
+    if (!ev.charging) return 'STANDBY';
+    if (ev.reqKw > ev.actKw) return 'THROTTLED';
+    return 'CHARGING';
+  };
+
+  const chgBadgeClass = (ev) => {
+    const s = chgStatus(ev);
+    if (s === 'CHARGING') return 'badge-cyan';
+    if (s === 'THROTTLED') return 'badge-amber';
+    if (s === 'COMPLETE') return 'badge-green';
+    return 'badge-blue';
+  };
+
+  if (container.children.length === 0) {
+    container.innerHTML = '';
+    scadaState.evs.forEach((ev, idx) => {
+      const bay = document.createElement('div');
+      bay.className = `ev-bay-console ${ev.reqKw > ev.actKw && ev.charging ? 'smart-throttled' : ''}`;
+      bay.id = `evBayCard-${idx}`;
+      bay.innerHTML = `
+        <div class="ev-bay-head">
+          <span class="ev-bay-id">${ev.id} &bull; ${ev.model}</span>
+          <span class="tech-badge ${chgBadgeClass(ev)}" id="evStatusBadge-${idx}">${chgStatus(ev)}</span>
+        </div>
+        <div class="ev-power-slider-line">
+          <div class="ev-power-slider-fill" id="evTrackBar-${idx}" style="width:${ev.soc}%;"></div>
+        </div>
+        <div class="ev-telemetry-trio">
+          <div><span style="color:var(--text-dim);">SOC</span><br><strong style="color:#fff;" id="evSocVal-${idx}">${Math.round(ev.soc)}%</strong></div>
+          <div><span style="color:var(--text-dim);">REQUESTED</span><br><strong style="color:#fff;">${ev.reqKw.toFixed(1)} kW</strong></div>
+          <div><span style="color:var(--text-dim);">ACTUAL</span><br><strong style="color:var(--cyan);" id="evActVal-${idx}">${ev.actKw.toFixed(1)} kW</strong></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span class="font-mono" style="font-size:11px; color:var(--text-muted);">Est: <strong style="color:#fff;" id="evTimeVal-${idx}">${fmtEst(ev)}</strong> &bull; ${ev.batteryCapacityKwh} kWh</span>
+          <button class="cmd-btn" style="padding:4px 10px; font-size:10px;" onclick="toggleEvBaySlot(${idx})">
+            ${ev.charging ? 'TERMINATE' : 'INITIATE'}
+          </button>
+        </div>
+      `;
+      container.appendChild(bay);
+    });
+  } else {
+    scadaState.evs.forEach((ev, idx) => {
+      const track = document.getElementById(`evTrackBar-${idx}`);
+      if (track) track.style.width = Math.min(100.0, ev.soc) + '%';
+      setText(`evSocVal-${idx}`, Math.round(ev.soc) + '%');
+      setText(`evActVal-${idx}`, ev.actKw.toFixed(1) + ' kW');
+      setText(`evTimeVal-${idx}`, fmtEst(ev));
+      const badge = document.getElementById(`evStatusBadge-${idx}`);
+      if (badge) {
+        badge.innerText = chgStatus(ev);
+        badge.className = `tech-badge ${chgBadgeClass(ev)}`;
+      }
+    });
+  }
+}
+
+function toggleEvBaySlot(idx) {
+  const ev = scadaState.evs[idx];
+  if (!scadaState.loads.ev.enabled) {
+    showToast('Cannot toggle EV slot: Main EV Feeder Breaker is open!', 'amber');
+    return;
+  }
+  if (ev.soc >= ev.maxSoc) {
+    showToast(`${ev.id} is already fully charged (100% SOC).`, 'green');
+    return;
+  }
+  ev.charging = !ev.charging;
+  ev.actKw = ev.charging ? ev.reqKw : 0.0;
+  showToast(`${ev.id} charging ${ev.charging ? 'initiated' : 'terminated'}`, 'cyan');
+  runSimulationCycle();
+}
+
+function toggleFeederBreaker(key, isChecked) {
+  if (scadaState.loads[key]) {
+    scadaState.loads[key].enabled = isChecked;
+    showToast(`Feeder [${key.toUpperCase()}] breaker ${isChecked ? 'CLOSED (ON)' : 'TRIPPED (OFF)'}`, isChecked ? 'green' : 'amber');
+    addSystemEvent(`\u26a1 Feeder breaker ${key.toUpperCase()} set to ${isChecked ? 'CLOSED' : 'OPEN'}`);
+    runSimulationCycle();
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 7. FAULT DOSSIER & ACTIONS
+// ----------------------------------------------------------------------------
+const faultDossier = {
+  normal: {
+    heading: 'SYSTEM HEALTHY — NO ACTIVE FAULTS',
+    subheading: 'All telemetry signals within ANSI C84.1 Range A voltage and frequency limits.',
+    pill: 'HEALTHY',
+    pillClass: 'badge-green',
+    subsystem: 'None (All Nominal)',
+    severity: 'Normal (Code 0)',
+    symptoms: 'Balanced steady-state voltages & currents',
+    action: 'Maintain automated SCADA supervisory loop.'
+  },
+  overload: {
+    heading: 'CRITICAL FEEDER OVERLOAD DETECTED',
+    subheading: 'Substation aggregate current exceeds continuous thermal ampacity.',
+    pill: 'OVERLOAD',
+    pillClass: 'badge-amber',
+    subsystem: 'Main 415V Busway & Feeders',
+    severity: 'High (Code 51 - Inverse Time Overcurrent)',
+    symptoms: 'Current exceeds 430A; Voltage drops to 401V',
+    action: 'Shed HVAC and stage-2 EV charging; dispatch battery discharge.'
+  },
+  overvoltage: {
+    heading: 'VOLTAGE SURGE EXCEEDS 478 V LIMIT',
+    subheading: 'Line voltage elevated +15.2% above nominal 415V.',
+    pill: 'OVERVOLTAGE',
+    pillClass: 'badge-red',
+    subsystem: 'Substation Voltage Regulation Bus',
+    severity: 'High (Code 59 - Overvoltage Relay)',
+    symptoms: 'Insulation dielectric stress, high magnetizing current',
+    action: 'Switch out capacitor banks; step down OLTC tap changer.'
+  },
+  undervoltage: {
+    heading: 'VOLTAGE SAG DETECTED (348 V RMS)',
+    subheading: 'Supply voltage has dropped by 16.1% threatening motor stalling.',
+    pill: 'UNDERVOLTAGE',
+    pillClass: 'badge-amber',
+    subsystem: 'Motor Control Center (MCC)',
+    severity: 'Medium (Code 27 - Undervoltage Relay)',
+    symptoms: 'Excessive induction motor slip and current draw',
+    action: 'Inject reactive power via solar/battery inverter (VAR compensation).'
+  },
+  shortcircuit: {
+    heading: 'BOLTED 3-PHASE SHORT CIRCUIT (12 kA)',
+    subheading: 'Impedance collapse. Main vacuum circuit breaker (VCB) tripped.',
+    pill: 'TRIPPED',
+    pillClass: 'badge-red',
+    subsystem: 'Primary Feeder Breakers (VCB-01)',
+    severity: 'Critical (Code 50 - Instantaneous Trip)',
+    symptoms: 'Severe voltage collapse to 42V, current spike',
+    action: 'VCB locked out. Perform insulation resistance diagnostic before reset.'
+  },
+  freqdev: {
+    heading: 'UNDER-FREQUENCY EVENT (48.42 Hz)',
+    subheading: 'Grid frequency has breached the 49.2 Hz statutory trip boundary.',
+    pill: 'FREQ SAG',
+    pillClass: 'badge-amber',
+    subsystem: 'Synchronous Intertie Protection',
+    severity: 'High (Code 81U - Underfrequency)',
+    symptoms: 'Turbine-generator rotor deceleration on grid',
+    action: 'Trigger Under-Frequency Load Shedding (UFLS) Stage 1.'
+  },
+  batovertemp: {
+    heading: 'BESS THERMAL RUNAWAY RISK (68.4 °C)',
+    subheading: 'Battery cell temperature exceeds critical 60 °C safety ceiling.',
+    pill: 'THERMAL RUNAWAY',
+    pillClass: 'badge-red',
+    subsystem: 'Battery Energy Storage Pack',
+    severity: 'Emergency (Code 26 - Thermal Trip)',
+    symptoms: 'High cell temperature, thermal sensor trip',
+    action: 'Isolate BESS DC contactors; engage emergency auxiliary cooling.'
+  },
+  singlephasing: {
+    heading: 'SINGLE PHASING DETECTED (PHASE B LOST)',
+    subheading: 'Loss of phase B voltage creating severe negative sequence currents.',
+    pill: 'PHASE LOSS',
+    pillClass: 'badge-red',
+    subsystem: 'Phase Monitoring & Protection Relay',
+    severity: 'High (Code 47 - Phase Sequence)',
+    symptoms: 'Unbalanced phase voltages, intense motor heating',
+    action: 'Trip 3-phase industrial induction motors immediately.'
+  }
+};
+
+function setFaultMode(key) {
+  scadaState.activeFault = key;
+  const info = faultDossier[key] || faultDossier.normal;
+
+  document.querySelectorAll('.fault-relay-tile').forEach(t => {
+    t.classList.remove('active', 'active-normal');
+  });
+  const activeTile = document.getElementById(`fault-${key}`);
+  if (activeTile) {
+    activeTile.classList.add(key === 'normal' ? 'active-normal' : 'active');
+  }
+
+  setText('diagHeading', info.heading);
+  setText('diagSubheading', info.subheading);
+  setText('diagSubsystem', info.subsystem);
+  setText('diagSeverity', info.severity);
+  setText('diagSymptoms', info.symptoms);
+  setText('diagAction', info.action);
+
+  const pill = document.getElementById('diagPill');
+  if (pill) {
+    pill.className = `tech-badge ${info.pillClass}`;
+    pill.innerText = info.pill;
+  }
+
+  // Clear forced states when returning to normal
+  if (key === 'normal') {
+    scadaState.batteryTempC = 28.4;
+    scadaState.batteryTempStatus = 'NORMAL';
+    showToast('Substation restored to normal healthy operation', 'green');
+    addSystemEvent('\ud83d\udfe2 Fault cleared: System normalized to healthy baseline');
+  } else {
+    showToast(`\u26a0 Fault Injected: ${info.heading}`, 'red');
+    addSystemEvent(`\ud83d\udd34 FAULT ACTIVATED: ${info.heading}`);
+  }
+
+  runSimulationCycle();
+}
+
+// ----------------------------------------------------------------------------
+// 8. RULE-BASED EXPERT DIAGNOSTIC ASSISTANT
+// ----------------------------------------------------------------------------
+function sendAiShortcut(q) {
+  const input = document.getElementById('aiQueryInput');
+  if (input) input.value = q;
+  executeAiQuery();
+}
+
+function executeAiQuery() {
+  const input = document.getElementById('aiQueryInput');
+  if (!input || !input.value.trim()) return;
+
+  const query = input.value.trim();
+  input.value = '';
+
+  const log = document.getElementById('aiTerminalChat');
+  if (!log) return;
+
+  const userPkt = document.createElement('div');
+  userPkt.className = 'ai-packet user font-mono';
+  userPkt.innerText = query;
+  log.appendChild(userPkt);
+  log.scrollTop = log.scrollHeight;
+
+  setTimeout(() => {
+    const responseHtml = generateAiResponse(query);
+    const botPkt = document.createElement('div');
+    botPkt.className = 'ai-packet system font-mono';
+    botPkt.innerHTML = responseHtml;
+    log.appendChild(botPkt);
+    log.scrollTop = log.scrollHeight;
+  }, 250);
+}
+
+function generateAiResponse(queryText) {
+  const q = queryText.toLowerCase();
+
+  let cond = '';
+  let issue = '';
+  let root = '';
+  let eng = '';
+  let action = '';
+
+  if (q.includes('grid import') || q.includes('grid power')) {
+    cond = `Grid active power exchange is currently <strong>${scadaState.gridPowerKw.toFixed(1)} kW</strong> (${scadaState.gridPowerKw >= 0.0 ? 'Importing from utility' : 'Exporting clean energy'}). Total demand is <strong>${scadaState.totalSystemLoadKw.toFixed(1)} kW</strong> against renewable generation of <strong>${scadaState.totalRenewableKw.toFixed(1)} kW</strong>.`;
+    issue = scadaState.gridPowerKw > 120.0 ? 'Elevated utility import incurring peak tariff charges.' : 'Grid power exchange is within optimal economic dispatch limits.';
+    root = 'Combined industrial manufacturing and EV charging exceeds on-site solar/wind generation and BESS discharge capacity.';
+    eng = 'In grid-tied mode, the infinite bus acts as the balancing slack generator. Grid Power = Total Served Load + Battery Charging - (Solar + Wind + Battery Discharge).';
+    action = 'Throttle EV charging power from 50 kW to 22 kW or shed non-critical HVAC chillers to reduce peak billing.';
+  } else if (q.includes('battery') || q.includes('discharging') || q.includes('soc')) {
+    cond = `BESS SOC is <strong>${Math.round(scadaState.batterySoc)}%</strong> with pack operating at <strong>${scadaState.batteryPowerKw.toFixed(1)} kW</strong> (${scadaState.batteryPowerKw > 0.0 ? 'Charging' : (scadaState.batteryPowerKw < 0.0 ? 'Discharging' : 'Idle')}) at <strong>${scadaState.batteryTempC.toFixed(1)} °C</strong>.`;
+    issue = scadaState.batterySoc < 25.0 ? 'Low SOC threshold reached (<25%).' : 'Battery operational parameters are optimal.';
+    root = scadaState.batteryPowerKw < 0.0 ? 'Discharging to cover on-site renewable deficit and avoid grid import charges.' : 'Absorbing surplus generation to store energy for subsequent peak periods.';
+    eng = 'Energy throughput follows: \u0394E = P * dt * \u03b7. Battery temperature rises proportionally to (P/50)² due to internal I²R resistance.';
+    action = scadaState.batterySoc <= 20.0 ? 'Switch battery mode to FORCE CHARGE to protect cell cycle life.' : 'Maintain automatic dispatch.';
+  } else if (q.includes('ev') || q.includes('throttled')) {
+    cond = `EV Superhub demand is <strong>${scadaState.actualEvLoadKw.toFixed(1)} kW</strong> across 6 bays. Smart Charging: <strong>${scadaState.smartChargingActive ? 'ACTIVE (THROTTLED)' : 'NORMAL'}</strong>.`;
+    issue = scadaState.smartChargingActive ? `Total load exceeded 330 kW peak limit; shed ${scadaState.evLoadReductionKw.toFixed(1)} kW.` : 'All EV bays charging at full requested nameplate power.';
+    root = 'Substation transformer capacity optimization algorithm automatically curtails high-SOC vehicles while preserving low-SOC cars.';
+    eng = 'Vehicles with highest SOC are prioritized for current throttling to protect feeder thermal headroom.';
+    action = 'Allow autonomous throttling to maintain grid stability during factory batch peaks.';
+  } else if (q.includes('voltage')) {
+    cond = `Substation RMS line voltage is measured at <strong>${scadaState.gridVoltage.toFixed(1)} V</strong> (Nominal: 415.0 V).`;
+    issue = Math.abs(scadaState.gridVoltage - 415.0) > 20.0 ? 'Significant voltage vector deviation detected.' : 'Voltage is strictly within ANSI C84.1 Range A (\u00b15%).';
+    root = scadaState.activeFault !== 'normal' ? `Attributable to active fault: ${scadaState.activeFault.toUpperCase()}` : 'Heavy inductive motor loading causing line impedance voltage drop.';
+    eng = 'V_drop = \u221a3 * I * (R*cos\u03c6 + X*sin\u03c6). Reactive power demand directly governs bus voltage magnitude.';
+    action = scadaState.gridVoltage < 400.0 ? 'Switch in APFC capacitor stages or command solar inverter VAR injection.' : 'No voltage compensation required.';
+  } else if (q.includes('fault') || q.includes('cause')) {
+    cond = `Active Fault: <strong>${scadaState.activeFault.toUpperCase()}</strong>. System Health Index: <strong>${scadaState.systemHealthScore}%</strong>.`;
+    issue = scadaState.activeFault !== 'normal' ? `Protection relay flagged: ${faultDossier[scadaState.activeFault].severity}` : 'No active trip codes.';
+    root = faultDossier[scadaState.activeFault].symptoms;
+    eng = faultDossier[scadaState.activeFault].subheading;
+    action = faultDossier[scadaState.activeFault].action;
+  } else if (q.includes('peak demand') || q.includes('reduce')) {
+    cond = `Substation demand: <strong>${scadaState.totalSystemLoadKw.toFixed(1)} kW</strong>. Peak threshold: <strong>330.0 kW</strong>.`;
+    issue = scadaState.totalSystemLoadKw > 330.0 ? 'Operating in peak surcharge penalty zone.' : 'Operating within standard tariff boundaries.';
+    root = 'Simultaneous operation of industrial induction motors (75 kW) and EV DC fast charging (53 kW).';
+    eng = 'Peak shaving can be achieved via dispatching BESS at 60 kW and shedding non-critical HVAC loads.';
+    action = 'Command battery mode to FORCE DISCHARGE or switch off Chiller breaker.';
+  } else {
+    cond = `Live telemetry state: Voltage = <strong>${scadaState.gridVoltage.toFixed(1)} V</strong>, Frequency = <strong>${scadaState.gridFreq.toFixed(2)} Hz</strong>, Active Power = <strong>${scadaState.activePowerKw.toFixed(1)} kW</strong>, Grid Connected = <strong>${scadaState.gridConnected}</strong>.`;
+    issue = scadaState.activeFault === 'normal' ? 'No anomalous conditions recorded.' : `Fault condition: ${scadaState.activeFault.toUpperCase()}.`;
+    root = 'Direct telemetry observation from deterministic microgrid execution engine.';
+    eng = 'All three-phase AC formulas (S = \u221a3\u00b7V\u00b7I, P = S\u00b7PF, Q = \u221a(S\u00b2 - P\u00b2)) are strictly conserved.';
+    action = 'Navigate to Simulation Controls to adjust manual environmental sliders.';
+  }
+
+  return `
+    <div><strong style="color:var(--cyan);">CURRENT CONDITION:</strong> ${cond}</div>
+    <div class="ai-field-header">DETECTED ISSUE:</div>
+    <div>${issue}</div>
+    <div class="ai-field-header">ROOT CAUSE:</div>
+    <div>${root}</div>
+    <div class="ai-field-header">ENGINEERING EXPLANATION:</div>
+    <div>${eng}</div>
+    <div class="ai-field-header">RECOMMENDED ACTION:</div>
+    <div>${action}</div>
+  `;
+}
+
+// ----------------------------------------------------------------------------
+// 9. SIMULATION CONTROLS & MANUAL OVERRIDES
+// ----------------------------------------------------------------------------
+function adjustSimInput(param, value) {
+  const num = parseFloat(value);
+  if (!isFinite(num)) return;
+
+  if (param === 'solar') {
+    scadaState.solarKw = Math.max(0.0, num);
+    setText('numSliderSolar', num + ' kW');
+  } else if (param === 'wind') {
+    scadaState.windKw = Math.max(0.0, num);
+    setText('numSliderWind', num + ' kW');
+  } else if (param === 'factory') {
+    scadaState.loads.factory.configuredLoad = Math.max(0.0, num);
+    setText('numSliderFactory', num + ' kW');
+  } else if (param === 'ev') {
+    setText('numSliderEv', num + ' kW');
+    scadaState.loads.ev.configuredLoad = Math.max(0.0, num);
+    // Scale each car's requested power proportionally within individual nameplate caps
+    const totalCap = scadaState.evs.reduce((acc, ev) => acc + ev.maxKw, 0);
+    scadaState.evs.forEach(ev => {
+      ev.reqKw = parseFloat(Math.min(ev.maxKw, (ev.maxKw / totalCap) * num).toFixed(1));
+    });
+  } else if (param === 'soc') {
+    scadaState.batterySoc = Math.max(scadaState.minSoc, Math.min(scadaState.maxSoc, num));
+    setText('numSliderSoc', Math.round(scadaState.batterySoc) + ' %');
+  }
+  runSimulationCycle();
+}
+
+function toggleGridIntertie(isConnected) {
+  scadaState.gridConnected = isConnected;
+  showToast(`Grid Intertie: ${isConnected ? 'GRID-TIED (Synchronized)' : 'ISLANDED MICROGRID'}`, isConnected ? 'cyan' : 'amber');
+  addSystemEvent(`\ud83c\udf10 Grid Mode set to ${isConnected ? 'GRID-TIED' : 'ISLANDED MICROGRID'}`);
+  runSimulationCycle();
+}
+
+function toggleSimulationPause() {
+  scadaState.isPaused = !scadaState.isPaused;
+  const btnText = document.getElementById('btnPauseSimText');
+  const btnIcon = document.getElementById('btnPauseSimIcon');
+  if (btnText && btnIcon) {
+    if (scadaState.isPaused) {
+      btnText.innerText = 'RESUME';
+      btnIcon.innerHTML = '&#9654;';
+      showToast('Simulation Paused', 'amber');
+      addSystemEvent('\u23f8 Simulation execution paused by operator');
+    } else {
+      btnText.innerText = 'PAUSE';
+      btnIcon.innerHTML = '&#10074;&#10074;';
+      showToast('Simulation Resumed', 'green');
+      addSystemEvent('\u25b6 Simulation execution resumed');
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 10. MASTER SYSTEM RESET (Guaranteed 100% Baseline Restoration)
+// ----------------------------------------------------------------------------
+function resetSimulation() {
+  const eventsBackup = scadaState.events;
+  scadaState = deepClone(INITIAL_STATE);
+  scadaState.events = eventsBackup;
+
+  // Restore DOM Form Elements
+  ['Factory', 'Hvac', 'Lighting', 'Motors', 'Ev'].forEach(l => {
+    const chk = document.getElementById(`chkLoad${l}`);
+    if (chk) chk.checked = true;
+  });
+
+  const gridChk = document.getElementById('chkGridState');
+  if (gridChk) gridChk.checked = true;
+
+  const sSolar = document.getElementById('rngSolar'); if (sSolar) sSolar.value = 82;
+  const sWind = document.getElementById('rngWind'); if (sWind) sWind.value = 41;
+  const sFactory = document.getElementById('rngFactory'); if (sFactory) sFactory.value = 120;
+  const sEv = document.getElementById('rngEv'); if (sEv) sEv.value = 53;
+  const sSoc = document.getElementById('rngSoc'); if (sSoc) sSoc.value = 74;
+
+  setText('numSliderSolar', '82 kW');
+  setText('numSliderWind', '41 kW');
+  setText('numSliderFactory', '120 kW');
+  setText('numSliderEv', '53 kW');
+  setText('numSliderSoc', '74 %');
+
+  setFaultMode('normal');
+  setBatteryMode('AUTO');
+
+  // Reset EV container DOM
+  const evBox = document.getElementById('evBaysContainer');
+  if (evBox) evBox.innerHTML = '';
+
+  initBmsCells();
+  resetChartBuffers();
+
+  showToast('Simulation successfully reset to baseline nominal parameters', 'green');
+  addSystemEvent('\ud83d\udd04 Master System Reset: Default nominal SCADA telemetry restored');
+
+  runSimulationCycle();
+}
+
+// ----------------------------------------------------------------------------
+// 11. TOAST NOTIFICATIONS & EVENTS
+// ----------------------------------------------------------------------------
+function showToast(msg, color = 'cyan') {
+  const box = document.getElementById('toastContainer');
+  if (!box) return;
+
+  const card = document.createElement('div');
+  card.className = 'cmd-toast';
+  if (color === 'green') card.style.borderLeftColor = 'var(--emerald)';
+  else if (color === 'amber') card.style.borderLeftColor = 'var(--amber)';
+  else if (color === 'red') card.style.borderLeftColor = 'var(--red)';
+
+  card.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>${msg}</span>
+  `;
+
+  box.appendChild(card);
+  setTimeout(() => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(100%)';
+    card.style.transition = 'all 0.25s ease';
+    setTimeout(() => card.remove(), 250);
+  }, 3000);
+}
+
+function addSystemEvent(text) {
+  if (!Array.isArray(scadaState.events)) scadaState.events = [];
+  const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+  scadaState.events.unshift({ time, text });
+  if (scadaState.events.length > 25) scadaState.events.pop();
+
+  const log = document.getElementById('dashboardEventLog');
+  if (log) {
+    log.innerHTML = scadaState.events.map(e => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:6px 12px; border-radius:3px; border:1px solid rgba(148,163,184,0.08); font-size:11.5px; font-family:var(--font-mono);">
+        <span style="color:#ffffff;">${e.text}</span>
+        <span style="color:var(--text-dim);">${e.time}</span>
+      </div>
+    `).join('');
+  }
+
+  setText('eventCountBadge', `${scadaState.events.length} Events Buffered`);
+}
+
+// ----------------------------------------------------------------------------
+// 12. CHART.JS INTEGRATION
+// ----------------------------------------------------------------------------
+let chartDashboardPower = null;
+let chartGridVolt = null;
+let chartGridFreq = null;
+let chartGridLoad = null;
+let chartGridPF = null;
+let chartRenewMix = null;
+let chartLoadProfile24 = null;
+
+const timeBuff = Array.from({ length: 12 }, (_, i) => `${(12 - i) * 2}s`);
+let buffGen = [230, 235, 238, 242, 245, 244, 248, 250, 246, 252, 255, 258];
+let buffLoad = [285, 290, 292, 295, 298, 301, 304, 300, 302, 299, 301, 301];
+let buffVolt = [415.1, 415.2, 414.9, 415.3, 415.0, 415.2, 415.1, 415.0, 415.2, 415.1, 415.0, 415.0];
+let buffFreq = [50.01, 50.00, 49.99, 50.02, 50.01, 49.99, 50.00, 50.01, 50.00, 50.00, 49.99, 50.00];
+
+function resetChartBuffers() {
+  buffGen = [230, 235, 238, 242, 245, 244, 248, 250, 246, 252, 255, 258];
+  buffLoad = [285, 290, 292, 295, 298, 301, 304, 300, 302, 299, 301, 301];
+  buffVolt = [415.1, 415.2, 414.9, 415.3, 415.0, 415.2, 415.1, 415.0, 415.2, 415.1, 415.0, 415.0];
+  buffFreq = [50.01, 50.00, 49.99, 50.02, 50.01, 49.99, 50.00, 50.01, 50.00, 50.00, 49.99, 50.00];
+}
+
+function initDarkCharts() {
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js not loaded. Skipping chart initialization.');
+    return;
+  }
+  const darkOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 300 },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#94a3b8',
+          font: { family: 'JetBrains Mono', size: 11, weight: 600 }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+        ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } }
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+        ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+      }
+    }
+  };
+
+  const cDash = document.getElementById('chartDashboardPower');
+  if (cDash) {
+    chartDashboardPower = new Chart(cDash, {
+      type: 'line',
+      data: {
+        labels: timeBuff,
+        datasets: [
+          {
+            label: 'Local Generation (kW)',
+            data: [...buffGen],
+            borderColor: '#00f0ff',
+            backgroundColor: 'rgba(0, 240, 255, 0.06)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2
+          },
+          {
+            label: 'Total Demand (kW)',
+            data: [...buffLoad],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.04)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: darkOpts
+    });
+  }
+
+  const cVolt = document.getElementById('chartGridVolt');
+  if (cVolt) {
+    chartGridVolt = new Chart(cVolt, {
+      type: 'line',
+      data: {
+        labels: timeBuff,
+        datasets: [{
+          label: 'Voltage L-L (V)',
+          data: [...buffVolt],
+          borderColor: '#00f0ff',
+          backgroundColor: 'rgba(0, 240, 255, 0.05)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        ...darkOpts,
+        scales: { ...darkOpts.scales, y: { ...darkOpts.scales.y, min: 380, max: 450 } }
+      }
+    });
+  }
+
+  const cFreq = document.getElementById('chartGridFreq');
+  if (cFreq) {
+    chartGridFreq = new Chart(cFreq, {
+      type: 'line',
+      data: {
+        labels: timeBuff,
+        datasets: [{
+          label: 'Frequency (Hz)',
+          data: [...buffFreq],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.05)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        ...darkOpts,
+        scales: { ...darkOpts.scales, y: { ...darkOpts.scales.y, min: 48.5, max: 51.5 } }
+      }
+    });
+  }
+
+  const cLoad = document.getElementById('chartGridLoad');
+  if (cLoad) {
+    chartGridLoad = new Chart(cLoad, {
+      type: 'line',
+      data: {
+        labels: timeBuff,
+        datasets: [{
+          label: 'Substation Demand (kW)',
+          data: [...buffLoad],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.05)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2
+        }]
+      },
+      options: darkOpts
+    });
+  }
+
+  const cPF = document.getElementById('chartGridPF');
+  if (cPF) {
+    chartGridPF = new Chart(cPF, {
+      type: 'line',
+      data: {
+        labels: timeBuff,
+        datasets: [{
+          label: 'Power Factor (Lag)',
+          data: [0.96, 0.96, 0.959, 0.961, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96],
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.05)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        ...darkOpts,
+        scales: { ...darkOpts.scales, y: { ...darkOpts.scales.y, min: 0.85, max: 1.0 } }
+      }
+    });
+  }
+
+  const cMix = document.getElementById('chartRenewMix');
+  if (cMix) {
+    chartRenewMix = new Chart(cMix, {
+      type: 'doughnut',
+      data: {
+        labels: ['Solar PV', 'Wind', 'Grid Import', 'BESS Discharge'],
+        datasets: [{
+          data: [82.0, 41.0, 143.0, 35.0],
+          backgroundColor: ['#f59e0b', '#00f0ff', '#2563eb', '#10b981'],
+          borderWidth: 2,
+          borderColor: '#0c121e'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+          }
+        },
+        cutout: '72%'
+      }
+    });
+  }
+
+  const c24 = document.getElementById('chartLoadProfile24');
+  if (c24) {
+    const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+    chartLoadProfile24 = new Chart(c24, {
+      type: 'line',
+      data: {
+        labels: hours,
+        datasets: [
+          {
+            label: 'Industrial Demand (kW)',
+            data: [60, 60, 65, 80, 140, 160, 155, 150, 165, 140, 100, 75],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.06)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Solar Profile (kW)',
+            data: [0, 0, 0, 10, 45, 95, 125, 110, 70, 20, 0, 0],
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.06)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'EV Superhub Load (kW)',
+            data: [20, 15, 10, 15, 40, 65, 70, 60, 85, 90, 75, 45],
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.06)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: darkOpts
+    });
+  }
+}
+
+function updateChartsUI() {
+  if (typeof Chart === 'undefined') return;
+  const localGen = scadaState.totalRenewableKw + (scadaState.batteryPowerKw < 0.0 ? Math.abs(scadaState.batteryPowerKw) : 0.0);
+
+  if (chartDashboardPower) {
+    chartDashboardPower.data.datasets[0].data.shift();
+    chartDashboardPower.data.datasets[0].data.push(Math.round(localGen));
+    chartDashboardPower.data.datasets[1].data.shift();
+    chartDashboardPower.data.datasets[1].data.push(Math.round(scadaState.totalSystemLoadKw));
+    chartDashboardPower.update('none');
+  }
+
+  if (chartGridVolt) {
+    chartGridVolt.data.datasets[0].data.shift();
+    chartGridVolt.data.datasets[0].data.push(scadaState.gridVoltage);
+    chartGridVolt.update('none');
+  }
+
+  if (chartGridFreq) {
+    chartGridFreq.data.datasets[0].data.shift();
+    chartGridFreq.data.datasets[0].data.push(scadaState.gridFreq);
+    chartGridFreq.update('none');
+  }
+
+  if (chartGridLoad) {
+    chartGridLoad.data.datasets[0].data.shift();
+    chartGridLoad.data.datasets[0].data.push(Math.round(scadaState.totalSystemLoadKw));
+    chartGridLoad.update('none');
+  }
+
+  if (chartGridPF) {
+    chartGridPF.data.datasets[0].data.shift();
+    chartGridPF.data.datasets[0].data.push(scadaState.powerFactor);
+    chartGridPF.update('none');
+  }
+
+  if (chartRenewMix) {
+    chartRenewMix.data.datasets[0].data = [
+      Math.round(scadaState.solarKw),
+      Math.round(scadaState.windKw),
+      scadaState.gridConnected ? Math.max(0.0, scadaState.gridPowerKw) : 0.0,
+      scadaState.batteryPowerKw < 0.0 ? Math.abs(scadaState.batteryPowerKw) : 0.0
+    ];
+    chartRenewMix.update('none');
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 13. NAVIGATION ROUTER
+// ----------------------------------------------------------------------------
+const viewTitleDictionary = {
+  dashboard: 'SYSTEM OVERVIEW',
+  grid: 'GRID MONITOR',
+  flow: 'POWER FLOW',
+  renewables: 'RENEWABLE ENERGY',
+  battery: 'BATTERY / BMS',
+  ev: 'EV CHARGING',
+  load: 'LOAD MANAGEMENT',
+  faults: 'FAULT CENTER',
+  ai: 'DIAGNOSTIC ASSISTANT',
+  settings: 'SIMULATION CONTROLS'
+};
+
+function navigate(pageId) {
+  document.querySelectorAll('.nav-link-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-page') === pageId) {
+      btn.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('.view-page').forEach(sec => {
+    sec.classList.remove('active');
+  });
+
+  const target = document.getElementById(`page-${pageId}`);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  setText('pageTitleHeading', viewTitleDictionary[pageId] || 'COMMAND CENTER');
+
+  if (pageId === 'flow') {
+    setTimeout(updatePowerFlowDiagram, 60);
+  }
+
+  const sidebar = document.getElementById('appSidebar');
+  if (sidebar && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('appSidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
+
+// ============================================================================
+// 14. AUTOMATED TEST SUITE (10 Strict Scenarios Required by Objective #6)
+// ============================================================================
+function runAutomatedTests() {
+  const testResults = [];
+  const stateBackup = deepClone(scadaState);
+
+  // Helper assertion
+  const assertTest = (id, name, condition, details) => {
+    testResults.push({
+      id,
+      name,
+      passed: Boolean(condition),
+      details: details || ''
+    });
+  };
+
+  try {
+    // ------------------------------------------------------------------------
+    // Test 1: Normal Grid-Connected Operation
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    runSimulationCycle();
+    const t1Passed = scadaState.gridConnected === true &&
+                     scadaState._powerBalanceValid === true &&
+                     Math.abs(scadaState._powerBalanceKw) <= 0.05 &&
+                     scadaState.gridVoltage === 415.0 &&
+                     scadaState.gridFreq === 50.00;
+    assertTest(1, 'Normal Grid-Connected Operation', t1Passed,
+      `Balance Valid: ${scadaState._powerBalanceValid}, Residual: ${scadaState._powerBalanceKw} kW, Grid P: ${scadaState.gridPowerKw} kW`);
+
+    // ------------------------------------------------------------------------
+    // Test 2: Renewable Generation Greater Than Demand (Clean Grid Export)
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    scadaState.solarKw = 250.0;
+    scadaState.windKw = 150.0; // Total 400 kW > 301 kW load
+    runSimulationCycle();
+    const t2Passed = scadaState.gridPowerKw < 0.0 && // Grid must be exporting
+                     scadaState._powerBalanceValid === true && // Must not trigger false imbalance
+                     Math.abs(scadaState._powerBalanceKw) <= 0.05;
+    assertTest(2, 'Renewable Generation Greater Than Demand', t2Passed,
+      `Grid Export: ${Math.abs(scadaState.gridPowerKw)} kW, Residual Imbalance: ${scadaState._powerBalanceKw} kW (No False Imbalance)`);
+
+    // ------------------------------------------------------------------------
+    // Test 3: Renewable Generation Below Demand (Grid Import)
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    scadaState.solarKw = 20.0;
+    scadaState.windKw = 10.0; // Total 30 kW << 301 kW load
+    runSimulationCycle();
+    const t3Passed = scadaState.gridPowerKw > 0.0 && // Grid importing
+                     scadaState._powerBalanceValid === true &&
+                     Math.abs(scadaState._powerBalanceKw) <= 0.05;
+    assertTest(3, 'Renewable Generation Below Demand', t3Passed,
+      `Grid Import: ${scadaState.gridPowerKw} kW, Residual Imbalance: ${scadaState._powerBalanceKw} kW`);
+
+    // ------------------------------------------------------------------------
+    // Test 4: Battery Charging, Discharging, and IDLE Modes
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    // Mode IDLE must produce strictly 0 kW
+    scadaState.batteryMode = 'IDLE';
+    runSimulationCycle();
+    const idlePower = scadaState.batteryPowerKw;
+
+    // Mode FORCE_CHARGE must be positive
+    scadaState.batteryMode = 'FORCE_CHARGE';
+    runSimulationCycle();
+    const chgPower = scadaState.batteryPowerKw;
+
+    // Mode FORCE_DISCHARGE must be negative
+    scadaState.batteryMode = 'FORCE_DISCHARGE';
+    runSimulationCycle();
+    const dischgPower = scadaState.batteryPowerKw;
+
+    const t4Passed = (idlePower === 0.0) && (chgPower > 0.0) && (dischgPower < 0.0);
+    assertTest(4, 'Battery Charging, Discharging, and Idle Modes', t4Passed,
+      `IDLE: ${idlePower} kW, FORCE_CHARGE: +${chgPower} kW, FORCE_DISCHARGE: ${dischgPower} kW`);
+
+    // ------------------------------------------------------------------------
+    // Test 5: Battery SOC at Minimum and Maximum Limits
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    // At minimum limit (20% SOC), discharge must be 0 kW
+    scadaState.batterySoc = 20.0;
+    scadaState.batteryMode = 'FORCE_DISCHARGE';
+    runSimulationCycle();
+    const minSocDischg = scadaState.batteryPowerKw;
+
+    // At maximum limit (95% SOC), charge must be 0 kW
+    scadaState.batterySoc = 95.0;
+    scadaState.batteryMode = 'FORCE_CHARGE';
+    runSimulationCycle();
+    const maxSocChg = scadaState.batteryPowerKw;
+
+    const t5Passed = (minSocDischg === 0.0) && (maxSocChg === 0.0);
+    assertTest(5, 'Battery SOC at Minimum and Maximum Limits', t5Passed,
+      `Discharge at 20% SOC: ${minSocDischg} kW (Expected 0), Charge at 95% SOC: ${maxSocChg} kW (Expected 0)`);
+
+    // ------------------------------------------------------------------------
+    // Test 6: EV Charging Enabled and Disabled
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    // When enabled, actual EV power > 0
+    scadaState.loads.ev.enabled = true;
+    runSimulationCycle();
+    const evOnPower = scadaState.actualEvLoadKw;
+
+    // When disabled, EV power MUST be 0 and SOC must not increase
+    scadaState.loads.ev.enabled = false;
+    const preSoc = scadaState.evs[0].soc;
+    runSimulationCycle();
+    const evOffPower = scadaState.actualEvLoadKw;
+    const postSoc = scadaState.evs[0].soc;
+
+    const t6Passed = (evOnPower > 0.0) && (evOffPower === 0.0) && (preSoc === postSoc);
+    assertTest(6, 'EV Charging Enabled and Disabled', t6Passed,
+      `EV Enabled: ${evOnPower} kW, EV Disabled: ${evOffPower} kW, SOC Clamped: ${preSoc === postSoc}`);
+
+    // ------------------------------------------------------------------------
+    // Test 7: Island Mode With Sufficient and Insufficient Generation
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    scadaState.gridConnected = false;
+    // Sufficient generation: Solar 350 kW, Wind 100 kW >= total consumer demand
+    scadaState.solarKw = 350.0;
+    scadaState.windKw = 100.0;
+    runSimulationCycle();
+    const islandSuffStable = (scadaState.islandStability === 'STABLE' || scadaState.islandStability === 'LOAD SHED ACTIVE') && scadaState.gridPowerKw === 0.0;
+
+    // Insufficient generation: Solar 50 kW, Wind 20 kW << 301 kW load
+    scadaState.solarKw = 50.0;
+    scadaState.windKw = 20.0;
+    scadaState.batterySoc = 20.0; // Depleted battery, cannot assist
+    runSimulationCycle();
+    const islandInsuffShed = scadaState.islandShedLoadKw > 0.0 && scadaState.gridPowerKw === 0.0;
+
+    const t7Passed = islandSuffStable && islandInsuffShed;
+    assertTest(7, 'Island Mode: Sufficient & Insufficient Generation', t7Passed,
+      `Sufficient: ${scadaState.islandStability}, Insufficient Shed: ${scadaState.islandShedLoadKw} kW, Grid Isolated: P_grid = 0 kW`);
+
+    // ------------------------------------------------------------------------
+    // Test 8: Fault Activation, Protection Trip, and Recovery
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    setFaultMode('shortcircuit');
+    const faultVoltage = scadaState.gridVoltage;
+    const faultScore = scadaState.systemHealthScore;
+
+    // Recovery to normal
+    setFaultMode('normal');
+    const recoverVoltage = scadaState.gridVoltage;
+    const recoverScore = scadaState.systemHealthScore;
+
+    const t8Passed = (faultVoltage === 42.0) && (faultScore <= 20) && (recoverVoltage === 415.0) && (recoverScore >= 85);
+    assertTest(8, 'Fault Activation, Protection Trip, and Recovery', t8Passed,
+      `Short Circuit V: ${faultVoltage} V (Health ${faultScore}%), Recovered V: ${recoverVoltage} V (Health ${recoverScore}%)`);
+
+    // ------------------------------------------------------------------------
+    // Test 9: Master Reset After Changing Multiple Settings
+    // ------------------------------------------------------------------------
+    scadaState.solarKw = 140.0;
+    scadaState.batterySoc = 33.0;
+    scadaState.loads.factory.enabled = false;
+    scadaState.loads.ev.enabled = false;
+    scadaState.evs[0].soc = 99.0;
+    setFaultMode('overvoltage');
+    runSimulationCycle();
+
+    resetSimulation();
+    const t9Passed = (scadaState.solarKw === 82.0) &&
+                     (Math.abs(scadaState.batterySoc - 74.0) < 0.1) &&
+                     (scadaState.loads.factory.enabled === true) &&
+                     (scadaState.loads.ev.enabled === true) &&
+                     (Math.abs(scadaState.evs[0].soc - 64.0) < 0.05) &&
+                     (scadaState.activeFault === 'normal') &&
+                     (scadaState.gridVoltage === 415.0);
+    assertTest(9, 'Master Reset After Multiple Modifications', t9Passed,
+      `Solar: ${scadaState.solarKw} kW, BESS: ${scadaState.batterySoc}%, EV-01 SOC: ${scadaState.evs[0].soc}%, Fault: ${scadaState.activeFault}`);
+
+    // ------------------------------------------------------------------------
+    // Test 10: Invalid Inputs and Power-Balance Tolerance
+    // ------------------------------------------------------------------------
+    scadaState = deepClone(INITIAL_STATE);
+    // Feed NaN and invalid strings
+    adjustSimInput('solar', NaN);
+    adjustSimInput('factory', -50.0);
+    runSimulationCycle();
+
+    const t10Passed = isFinite(scadaState.gridVoltage) &&
+                      isFinite(scadaState.gridCurrent) &&
+                      isFinite(scadaState.totalSystemLoadKw) &&
+                      scadaState._powerBalanceValid === true &&
+                      Math.abs(scadaState._powerBalanceKw) <= 0.05;
+    assertTest(10, 'Invalid Input Protection & Power-Balance Tolerance', t10Passed,
+      `Finite Telemetry: True, Residual Imbalance: ${scadaState._powerBalanceKw} kW (\u2264 0.05 kW tolerance)`);
+
+  } finally {
+    // Restore state
+    scadaState = stateBackup;
+    runSimulationCycle();
+  }
+
+  return testResults;
+}
+
+function openTestModal() {
+  const modal = document.getElementById('testModalBackdrop');
+  if (modal) {
+    modal.classList.add('open');
+    executeAndRenderTests();
+  }
+}
+
+function closeTestModal() {
+  const modal = document.getElementById('testModalBackdrop');
+  if (modal) modal.classList.remove('open');
+}
+
+function executeAndRenderTests() {
+  const results = runAutomatedTests();
+  const listEl = document.getElementById('testResultsList');
+  const badgeEl = document.getElementById('testSummaryBadge');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  let allPass = true;
+
+  results.forEach(res => {
+    if (!res.passed) allPass = false;
+    const row = document.createElement('div');
+    row.className = `test-report-row ${res.passed ? 'pass' : 'fail'}`;
+    row.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <span style="font-weight:700; color:#ffffff;">CASE ${res.id}: ${res.name}</span>
+        <span style="color:var(--text-muted); font-size:11px;">${res.details}</span>
+      </div>
+      <span class="tech-badge ${res.passed ? 'badge-green' : 'badge-red'}">${res.passed ? 'PASS' : 'FAIL'}</span>
+    `;
+    listEl.appendChild(row);
+  });
+
+  if (badgeEl) {
+    badgeEl.className = `tech-badge ${allPass ? 'badge-green' : 'badge-red'}`;
+    badgeEl.innerText = allPass ? 'ALL 10 TESTS PASSED (100% VERIFIED)' : 'SOME TESTS FAILED';
+  }
+}
+
+// Close modal on Escape
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeTestModal();
+});
+
+// ============================================================================
+// 15. INITIALIZATION SEQUENCE
+// ============================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  initBmsCells();
+  initDarkCharts();
+
+  addSystemEvent('\u26a1 Primary Substation TX-01 energized to nominal 415.0 V');
+  addSystemEvent('\ud83d\udfe2 Solar MPPT tracking locked at 82.0 kW');
+  addSystemEvent('\ud83d\udfe2 Wind turbine online at 41.0 kW (8.4 m/s)');
+  addSystemEvent('\ud83d\udd0b 400 kWh BESS storage active in AUTO dispatch mode');
+  addSystemEvent('\ud83d\ude97 EV smart charging hub armed with 6 active bays');
+
+  // Single initial cycle pass
+  runSimulationCycle();
+
+  // Controlled, non-duplicating 1400ms periodic simulation tick
+  if (simTimer) clearInterval(simTimer);
+  simTimer = setInterval(runSimulationCycle, 1400);
+
+  // Resize listener for power flow geometry alignment
+  window.addEventListener('resize', () => {
+    updatePowerFlowDiagram();
+  });
+});
+</script>
+
+</body>
+</html>
