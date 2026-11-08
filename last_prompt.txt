@@ -1,0 +1,739 @@
+<USER_REQUEST>
+Update the existing GRIDX — Interactive EEE Engineering Command Center code.
+
+IMPORTANT:
+
+* Do NOT redesign or replace the current UI.
+* Do NOT change the current dark futuristic GRIDX theme.
+* Do NOT remove any existing module, page, button, chart, animation, navigation, or interaction.
+* Preserve the existing footer branding and GRIDX identity.
+* Preserve the existing single-file HTML architecture.
+* HTML + CSS + JavaScript must remain inside ONE HTML file.
+* Make only the necessary engineering/simulation corrections described below.
+* The final output must be the COMPLETE updated single HTML file.
+
+==================================================
+
+1. FIX ISLANDED MICROGRID BATTERY PHYSICS
+   ==================================================
+
+Current problem:
+Island mode assumes the battery can always provide the full maxDischargeKw.
+
+Do NOT use:
+
+maxDischargeKw
+
+as the actual available battery generation.
+
+Instead, calculate battery availability from:
+
+* Current battery SOC
+* Minimum SOC
+* Battery capacity in kWh
+* Maximum discharge power
+* Current simulation timestep
+* Discharge efficiency
+
+Create a proper available battery discharge calculation.
+
+Concept:
+
+availableEnergyKwh =
+((batterySoc - minSoc) / 100) * batteryCapacityKwh
+
+availablePowerFromEnergy =
+(availableEnergyKwh * dischargeEff) / dtHours
+
+actualAvailableBatteryPower =
+Math.min(maxDischargeKw, availablePowerFromEnergy)
+
+If SOC <= minSoc:
+available battery discharge = 0
+
+Island mode must use this actual available battery power.
+
+==================================================
+2. FIX BATTERY DISPATCH AND ISLAND MODE CONSISTENCY
+===================================================
+
+The simulation must use the SAME battery dispatch state everywhere.
+
+Do not calculate one battery power for normal power balance and another imaginary battery power for island mode.
+
+Use:
+
+actual battery discharge
++
+actual renewable generation
+===========================
+
+available local generation
+
+When grid is disconnected:
+
+gridPowerKw = 0
+
+Then calculate:
+
+islandDemand
+islandAvailableGeneration
+islandDeficit
+islandShedLoad
+islandServedLoad
+
+All values must remain mathematically consistent.
+
+Power balance requirement:
+
+Renewable Generation
+
+* Battery Discharge
+* Grid Import
+  =
+  Served Load
+* Battery Charging
+
+For island mode:
+
+Grid Import = 0
+
+Therefore:
+
+Renewable Generation
+
+* Battery Discharge
+  =
+  Served Load
+* Battery Charging
+
+If generation is insufficient, perform load shedding.
+
+==================================================
+3. FIX LOAD SHEDDING
+====================
+
+Never overwrite configured load values.
+
+Each load must permanently retain:
+
+configuredLoad
+requestedLoad
+shedLoad
+servedLoad
+enabled
+priority
+
+Example:
+
+factory:
+configuredLoad: 120
+requestedLoad: 120
+shedLoad: 0
+servedLoad: 120
+
+During island operation:
+
+configuredLoad MUST NOT change.
+
+Only servedLoad and shedLoad should change.
+
+Calculate:
+
+shedLoad = requestedLoad - servedLoad
+
+Never simply set the configured load to zero.
+
+==================================================
+4. MAKE LOAD SHEDDING EXACT
+===========================
+
+Do not shed an entire load when only a small amount is required.
+
+Example:
+
+If deficit = 10 kW
+and HVAC = 35 kW
+
+Do NOT shed 35 kW automatically.
+
+Instead:
+
+shed HVAC = 10 kW
+served HVAC = 25 kW
+
+Use partial shedding wherever technically possible.
+
+Priority order:
+
+1. EV charging — NON-CRITICAL
+2. HVAC — NON-CRITICAL
+3. Motors — IMPORTANT
+4. Factory — IMPORTANT
+5. Lighting — CRITICAL
+
+Critical lighting should be protected as long as possible.
+
+Calculate remaining deficit after every shedding action.
+
+If remaining deficit becomes zero:
+
+stop shedding.
+
+==================================================
+5. FIX EV BATTERY SOC PHYSICS
+=============================
+
+Do NOT update EV SOC using an arbitrary formula such as:
+
+soc + actKw / 1800
+
+Instead, add realistic EV battery parameters to every EV:
+
+batteryCapacityKwh
+chargeEfficiency
+minSoc
+maxSoc
+
+Use the actual simulation timestep.
+
+For charging:
+
+energyAddedKwh =
+actualChargingPowerKw
+* dtHours
+* chargeEfficiency
+
+socIncrease =
+(energyAddedKwh / batteryCapacityKwh) * 100
+
+Then:
+
+soc =
+Math.min(maxSoc, soc + socIncrease)
+
+Do not allow SOC to exceed 100%.
+
+Do not allow charging when SOC >= maxSoc.
+
+==================================================
+6. FIX EV SMART CHARGING
+========================
+
+Maintain the existing smart charging concept:
+
+* Lower SOC EVs receive higher priority.
+* Higher SOC EVs are throttled first.
+* Minimum charging pilot power may remain 7 kW.
+* Smart charging activates when demand exceeds the configured peak threshold.
+
+However, make sure:
+
+requestedEvLoadKw
+
+> =
+> actualEvLoadKw
+
+and:
+
+evLoadReductionKw =
+requestedEvLoadKw - actualEvLoadKw
+
+Never produce negative EV load reduction.
+
+When smart charging is inactive:
+
+actualEvLoadKw = requestedEvLoadKw
+
+unless an EV has stopped charging because its SOC reached the limit.
+
+==================================================
+7. FIX EV ESTIMATED CHARGING TIME
+=================================
+
+Estimated charging time should be based on:
+
+remainingEnergyKwh =
+batteryCapacityKwh
+
+* (targetSoc - currentSoc)
+  / 100
+
+chargingTimeHours =
+remainingEnergyKwh
+/
+actualChargingPowerKw
+
+Then convert to minutes.
+
+If actual charging power is zero:
+
+display:
+
+"WAITING"
+
+instead of producing Infinity or NaN.
+
+==================================================
+8. BATTERY SOC LIMITS
+=====================
+
+Battery SOC must always remain:
+
+minSoc <= batterySoc <= maxSoc
+
+Never allow:
+
+batterySoc < minSoc
+
+or:
+
+batterySoc > maxSoc
+
+Force charge and force discharge modes must also respect these limits.
+
+==================================================
+9. BATTERY POWER LIMITS
+=======================
+
+Always enforce:
+
+-batteryMaxDischargeKw
+<= batteryPowerKw
+<=
+batteryMaxChargeKw
+
+Charging:
+
+batteryPowerKw > 0
+
+Discharging:
+
+batteryPowerKw < 0
+
+Idle:
+
+batteryPowerKw = 0
+
+==================================================
+10. FIX BATTERY THERMAL MODEL
+=============================
+
+Keep the existing simplified educational thermal model, but clearly treat it as a simplified model.
+
+Temperature should depend on battery power magnitude:
+
+P² relationship
+
+and cool gradually toward ambient temperature.
+
+Do not claim this is a full electrochemical thermal model.
+
+Battery status:
+
+NORMAL
+WARM
+HIGH TEMP
+OVER TEMPERATURE
+
+must be calculated from temperature thresholds.
+
+==================================================
+11. FIX THREE-PHASE POWER CALCULATIONS
+======================================
+
+Keep the existing equations but make sure all values come from current simulation state.
+
+Use:
+
+S = P / PF
+
+I = (S × 1000) / (√3 × V)
+
+Q = √(S² - P²)
+
+Power factor must remain:
+
+0 < PF <= 1
+
+Never allow division by zero.
+
+Never produce NaN or Infinity.
+
+==================================================
+12. GRID POWER CALCULATION
+==========================
+
+Use one consistent equation:
+
+Grid Power =
+Total Served Load
+
+* Battery Charging
+
+-
+
+## Renewable Generation
+
+Battery Discharge
+
+Positive:
+
+Grid Import
+
+Negative:
+
+Grid Export
+
+In grid-connected mode:
+
+gridPowerKw may be positive or negative.
+
+In island mode:
+
+gridPowerKw = 0.
+
+==================================================
+13. FAULT MODEL
+===============
+
+Keep the existing educational fault scenarios:
+
+* Overload
+* Overvoltage
+* Undervoltage
+* Short Circuit
+* Frequency Deviation
+* Battery Overtemperature
+* Single Phasing
+
+However:
+
+Clearly label these as SIMPLIFIED / EDUCATIONAL fault models.
+
+Do not present hard-coded fault values as real protection relay measurements.
+
+Fault values should affect the displayed:
+
+Voltage
+Frequency
+Power Factor
+THD
+Current
+Reactive Power
+System Health
+
+consistently.
+
+==================================================
+14. AI ENGINEER MUST NOT INVENT DATA
+====================================
+
+The AI Engineer panel must NEVER make unsupported claims.
+
+For example, do NOT say:
+
+"Cell balancing variance is within 15 mV"
+
+unless an actual cell-balancing calculation exists.
+
+Every AI statement must be based only on values available in the current simulation state.
+
+If data is unavailable, say:
+
+"Data unavailable in current simulation model."
+
+AI output must clearly distinguish:
+
+OBSERVATION
+CAUSE
+RECOMMENDED ACTION
+
+Do not fabricate telemetry.
+
+==================================================
+15. SYSTEM HEALTH
+=================
+
+Keep the dynamic system health score.
+
+Base it on actual current simulation values such as:
+
+* Voltage deviation
+* Frequency deviation
+* Battery SOC
+* Battery temperature
+* Active faults
+* Island stability
+* Load shedding
+* Renewable availability
+* EV smart charging state
+
+The score must change dynamically.
+
+Never display a health score that contradicts an active critical fault.
+
+Example:
+
+Short circuit active
+→ health must become CRITICAL.
+
+Normal operating condition
+→ health may return toward HEALTHY.
+
+==================================================
+16. NO CORRUPTED STATE BETWEEN SIMULATION CYCLES
+================================================
+
+Every simulation cycle must begin from the persistent configured state.
+
+Never permanently modify:
+
+configuredLoad
+batteryCapacityKwh
+maxChargeKw
+maxDischargeKw
+EV battery capacity
+EV requested charging power
+
+Temporary values such as:
+
+servedLoad
+shedLoad
+actualChargingPower
+actualGeneration
+
+may change every cycle.
+
+Before each cycle, reset temporary derived values appropriately.
+
+==================================================
+17. SIMULATION PIPELINE
+=======================
+
+Maintain this ordered simulation pipeline:
+
+1. Reset temporary derived states
+2. Calculate configured/requested loads
+3. Calculate EV requested charging
+4. Apply EV smart charging
+5. Calculate renewable generation
+6. Calculate battery dispatch
+7. Calculate initial power balance
+8. Apply grid-connected or islanded operating logic
+9. Perform exact priority-based load shedding if required
+10. Recalculate final power balance
+11. Apply fault model
+12. Calculate three-phase electrical quantities
+13. Calculate battery/EV SOC and thermal states
+14. Calculate system health
+15. Update UI
+16. Update charts
+17. Update power-flow diagram
+18. Update event log
+
+The FINAL displayed values must come from the FINAL simulation state.
+
+==================================================
+18. POWER BALANCE VALIDATION
+============================
+
+Create an internal validation function:
+
+validatePowerBalance()
+
+It should calculate:
+
+generation =
+renewableGeneration
++
+batteryDischarge
++
+gridImport
+
+demand =
+servedLoad
++
+batteryCharging
+
+difference =
+generation - demand
+
+If absolute difference is within a small tolerance such as 0.5 kW:
+
+power balance = VALID
+
+Otherwise:
+
+power balance = WARNING
+
+Display this internally or in the engineering diagnostics.
+
+Never silently show physically inconsistent values.
+
+==================================================
+19. NUMERICAL SAFETY
+====================
+
+Prevent:
+
+NaN
+Infinity
+negative power where impossible
+negative SOC
+SOC > 100%
+negative load
+negative battery capacity
+division by zero
+
+Use Math.max / Math.min and finite-value checks wherever required.
+
+==================================================
+20. DO NOT CHANGE THE DESIGN
+============================
+
+Preserve the current visual design exactly as much as possible.
+
+Keep:
+
+* Dark graphite background
+* Near-black navy panels
+* Electric cyan primary color
+* Deep blue
+* Violet accent
+* Green renewable indicators
+* Amber warnings
+* Red critical states
+* Technical grid background
+* Futuristic engineering / SCADA appearance
+* Current sidebar
+* Current header
+* Current dashboard
+* Current charts
+* Current power-flow visualization
+* Current BMS interface
+* Current EV charging interface
+* Current renewable interface
+* Current fault center
+* Current AI Engineer
+* Current load management
+* Current simulation controls
+
+Only modify code where necessary to correct the engineering logic.
+
+==================================================
+21. CODE QUALITY
+================
+
+Keep one centralized simulation state object.
+
+Avoid duplicated state variables.
+
+Avoid duplicate simulation engines.
+
+Avoid conflicting functions with the same purpose.
+
+Use clear function names.
+
+Add comments explaining engineering equations.
+
+Make sure all event listeners continue working.
+
+Make sure no JavaScript errors occur in the browser console.
+
+==================================================
+22. FINAL VALIDATION
+====================
+
+Before returning the final HTML, test these scenarios mentally and through code logic:
+
+TEST 1:
+Grid connected + normal operation
+
+Expected:
+Power balance valid
+Grid import/export calculated correctly.
+
+TEST 2:
+High renewable generation
+
+Expected:
+Renewable surplus
+Battery charges if SOC allows
+Grid import decreases or export may occur.
+
+TEST 3:
+Low renewable generation
+
+Expected:
+Battery discharges if SOC allows
+Grid import increases.
+
+TEST 4:
+Battery at minimum SOC
+
+Expected:
+Battery stops discharging
+Grid or load shedding handles remaining deficit.
+
+TEST 5:
+Grid disconnected
+
+Expected:
+Grid power = 0
+Battery + renewable generation supply loads
+Priority load shedding occurs only when required.
+
+TEST 6:
+Island deficit = 10 kW
+
+Expected:
+Only 10 kW is shed, not an entire 35 kW HVAC load.
+
+TEST 7:
+Battery at 20% SOC
+
+Expected:
+No further normal battery discharge.
+
+TEST 8:
+EV reaches 100% SOC
+
+Expected:
+Charging power becomes 0
+No SOC overflow.
+
+TEST 9:
+Short circuit fault
+
+Expected:
+Voltage/frequency/PF/THD/current respond consistently
+System health becomes critical.
+
+TEST 10:
+Fault cleared
+
+Expected:
+Normal electrical values return
+Health recovers based on actual conditions.
+
+==================================================
+FINAL OUTPUT
+============
+
+Return ONLY the complete corrected single HTML file.
+
+Do not provide explanations before or after the code.
+
+Do not remove existing functionality.
+
+Do not simplify the project.
+
+Do not replace the simulation with fake random telemetry.
+
+The final GRIDX must behave like a technically consistent educational EEE microgrid / SCADA simulation while preserving the current futuristic UI.
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-01T08:45:49+05:30.
+</ADDITIONAL_METADATA>
