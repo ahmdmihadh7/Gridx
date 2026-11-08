@@ -269,7 +269,7 @@
     }
 
     .cmd-topbar {
-      height: var(--header-height);
+      min-height: var(--header-height);
       background: rgba(12, 18, 30, 0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-panel);
@@ -280,6 +280,8 @@
       position: sticky;
       top: 0;
       z-index: 90;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .topbar-left {
@@ -325,6 +327,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
     }
 
     .status-indicator-badge {
@@ -621,13 +625,13 @@
     .chart-container-box {
       position: relative;
       width: 100%;
-      height: 250px;
+      height: clamp(180px, 30vw, 250px);
     }
 
     .chart-container-lg {
       position: relative;
       width: 100%;
-      height: 300px;
+      height: clamp(200px, 35vw, 300px);
     }
 
     .tech-disclaimer-strip {
@@ -657,8 +661,9 @@
       border: 1px solid var(--border-panel);
       border-radius: var(--radius-md);
       position: relative;
-      height: 520px;
-      overflow: hidden;
+      height: clamp(380px, 50vw, 520px);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
     }
 
@@ -1266,29 +1271,348 @@
 
     .cmd-footer strong { color: var(--text-bright); }
 
+    /* ==========================================================================
+       COMPREHENSIVE RESPONSIVE BREAKPOINTS — GRIDX
+       ========================================================================== */
+
+    /* --- TABLET: ≤ 1280px --- */
+    @media (max-width: 1280px) {
+      .cmd-content { max-width: 100%; }
+      .metric-matrix-8 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    }
+
+    /* --- SMALL LAPTOP / TABLET LANDSCAPE: ≤ 1080px --- */
     @media (max-width: 1080px) {
       .grid-2col, .grid-3col, .grid-2col-equal {
         grid-template-columns: 1fr;
       }
+      .topbar-meta-chip { display: none; }
     }
 
+    /* --- TABLET PORTRAIT: ≤ 868px  (sidebar collapses to drawer) --- */
     @media (max-width: 868px) {
-      :root { --sidebar-width: 0px; }
-      .cmd-sidebar { transform: translateX(-100%); width: 260px; }
-      .cmd-sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0, 0, 0, 0.9); }
+      :root {
+        --sidebar-width: 0px;
+        --header-height: 56px;
+      }
+
+      /* Sidebar becomes off-canvas drawer */
+      .cmd-sidebar {
+        transform: translateX(-260px);
+        width: 260px;
+        z-index: 200;
+        box-shadow: none;
+      }
+      .cmd-sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 40px rgba(0, 0, 0, 0.85);
+      }
+
+      /* Overlay backdrop when sidebar is open */
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 199;
+        backdrop-filter: blur(2px);
+      }
+      .sidebar-backdrop.visible { display: block; }
+
       .viewport-container { margin-left: 0; }
       .mobile-nav-toggle { display: flex; }
-      .cmd-topbar { padding: 0 16px; }
-      .cmd-content { padding: 16px; }
-      .topbar-meta-chip, .topbar-title-meta p { display: none; }
-      .cmd-footer { flex-direction: column; text-align: center; }
+
+      .cmd-topbar {
+        padding: 0 12px;
+        height: var(--header-height);
+        flex-wrap: nowrap;
+        overflow: hidden;
+      }
+
+      .topbar-left { gap: 10px; min-width: 0; flex-shrink: 1; }
+      .topbar-right { gap: 6px; flex-shrink: 0; }
+
+      .topbar-title-meta h1 {
+        font-size: clamp(13px, 3.5vw, 18px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 28vw;
+      }
+      .topbar-title-meta p { display: none; }
+      .topbar-meta-chip { display: none; }
+
+      /* Topbar buttons: keep essential ones, compact them */
+      .cmd-btn {
+        padding: 6px 10px;
+        font-size: 10.5px;
+        min-height: 36px;
+      }
+
+      /* Hide non-essential topbar labels */
+      #btnPauseSimText { display: none; }
+
+      .cmd-content { padding: 12px; }
+
+      /* Metric grid: 2-col on tablets */
+      .metric-matrix-8 {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+      }
+
+      .tile-big-num { font-size: 22px; }
+
+      /* Section headlines stack */
+      .section-headline-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .section-headline-bar h2 { font-size: 18px; }
+
+      /* Footer */
+      .cmd-footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+      }
+
+      /* AI console height */
+      .ai-console-terminal { height: auto; min-height: 480px; }
+      .ai-terminal-log { min-height: 220px; }
+
+      /* Test modal */
+      .test-modal-window { max-height: 90vh; margin: 0; }
+      .test-modal-head { flex-wrap: wrap; gap: 8px; }
+      .test-report-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      /* Toast */
+      .cmd-toast-stack { bottom: 12px; right: 12px; left: 12px; }
+      .cmd-toast { min-width: 0; width: 100%; }
+
+      /* Circuit rows in load page */
+      .circuit-toggle-row { flex-wrap: wrap; gap: 8px; }
+
+      /* Graphite panel header wraps */
+      .graphite-panel-header { flex-wrap: wrap; gap: 8px; }
     }
+
+    /* --- MOBILE LANDSCAPE / LARGE PHONE: ≤ 640px --- */
+    @media (max-width: 640px) {
+      .metric-matrix-8 {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .ev-bays-matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .fault-console-matrix {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .ai-prompt-shortcuts { gap: 6px; }
+      .shortcut-pill-btn { font-size: 10px; padding: 4px 8px; }
+
+      /* BMS battery mode buttons wrap */
+      .bms-soc-ring-area > div { gap: 6px; }
+    }
+
+    /* --- MOBILE: ≤ 480px --- */
+    @media (max-width: 480px) {
+      :root { --header-height: 52px; }
+
+      .cmd-topbar { padding: 0 10px; }
+
+      .topbar-right { gap: 4px; }
+
+      /* Hide RUN TESTS text on very small screens, keep icon */
+      .cmd-btn svg { flex-shrink: 0; }
+      #btnPauseSimIcon { font-size: 12px; }
+
+      /* Hide status badge text on tiny screens */
+      #topStatusText { display: none; }
+
+      .metric-matrix-8 {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .metric-module-tile {
+        min-height: 100px;
+        padding: 12px;
+      }
+
+      .tile-big-num { font-size: 20px; }
+      .tile-unit-text { font-size: 11px; }
+      .tile-tag-label { font-size: 9px; }
+
+      /* Cards */
+      .graphite-panel { padding: 14px; }
+      .graphite-panel-title { font-size: 10.5px; }
+
+      /* Fault grid: single col */
+      .fault-console-matrix {
+        grid-template-columns: 1fr;
+      }
+
+      /* BMS cell grid */
+      .cell-matrix-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      /* EV telemetry trio text */
+      .ev-telemetry-trio { font-size: 10px; }
+      .ev-bay-id { font-size: 11px; }
+
+      /* Circuit toggle rows */
+      .circuit-toggle-row { padding: 8px 10px; }
+
+      /* Section headline */
+      .section-headline-bar h2 { font-size: 16px; }
+      .section-headline-bar p { font-size: 11px; }
+
+      /* Simulation formulas box wraps */
+      .cmd-content { padding: 10px; }
+
+      /* AI console */
+      .ai-terminal-log { padding: 12px; }
+      .ai-packet { max-width: 95%; font-size: 12px; }
+      .ai-input-dock { padding: 10px 12px; gap: 6px; }
+      .ai-cmd-input { font-size: 11.5px; }
+
+      /* Test modal head wraps */
+      .test-modal-head { padding: 12px 14px; }
+      .test-modal-body { padding: 12px; }
+
+      /* Footer */
+      .cmd-footer { padding: 14px 12px; font-size: 11px; }
+
+      /* Toast smaller */
+      .cmd-toast { font-size: 11px; padding: 10px 14px; }
+    }
+
+    /* --- VERY SMALL MOBILE: ≤ 360px --- */
+    @media (max-width: 360px) {
+      .metric-matrix-8 {
+        grid-template-columns: 1fr;
+      }
+      .fault-console-matrix { grid-template-columns: 1fr; }
+      .cell-matrix-grid { grid-template-columns: repeat(3, 1fr); }
+
+      .topbar-title-meta h1 { max-width: 22vw; font-size: 12px; }
+      .cmd-btn { padding: 5px 8px; font-size: 10px; }
+    }
+
+    /* --- POWER FLOW: scrollable container on mobile --- */
+    @media (max-width: 768px) {
+      .flow-schematic-stage {
+        height: 420px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      #flowSchematicArea {
+        min-width: 700px;
+        height: 420px;
+      }
+      .flow-node-box {
+        min-width: 110px;
+        padding: 8px 10px;
+      }
+      .node-kw-display { font-size: 15px; }
+      .node-title-lbl { font-size: 9px; }
+      .flow-telemetry-badge { font-size: 9px; padding: 2px 6px; }
+    }
+
+    /* --- ULTRAWIDE CAP: ≥ 1920px --- */
+    @media (min-width: 1920px) {
+      .cmd-content { max-width: 1800px; }
+      .metric-matrix-8 { grid-template-columns: repeat(8, 1fr); }
+    }
+
+    /* --- FOCUS STATES for keyboard navigation --- */
+    .nav-link-btn:focus-visible,
+    .cmd-btn:focus-visible,
+    .shortcut-pill-btn:focus-visible,
+    .fault-relay-tile:focus-visible,
+    .graphite-range:focus-visible,
+    .circuit-switch input:focus-visible + .circuit-switch-slider,
+    .ai-cmd-input:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    /* --- REDUCED MOTION --- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .flow-wire-active { animation: none; }
+    }
+
+    /* --- TOUCH TARGET MINIMUM: ensure all interactive elements ≥ 44px tap zone --- */
+    .nav-link-btn {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .cmd-btn {
+      min-height: 36px;
+    }
+    .circuit-switch {
+      min-width: 40px;
+      min-height: 22px;
+    }
+    /* Expand touch area for toggles */
+    .circuit-toggle-row .circuit-switch {
+      cursor: pointer;
+    }
+
+    /* --- Hide button text labels on very narrow screens (icons remain visible) --- */
+    @media (max-width: 400px) {
+      .btn-label-text { display: none; }
+      #btnPauseSimText { display: none; }
+      #topStatusText { display: none; }
+      .topbar-title-meta h1 { max-width: 20vw; font-size: 11px; }
+    }
+
+    /* --- EV telemetry trio: 2-col on mobile to prevent 3 tiny columns --- */
+    @media (max-width: 480px) {
+      .ev-telemetry-trio {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* --- Graphite panels: prevent content overflow --- */
+    .graphite-panel { overflow: hidden; }
+    .graphite-panel > * { min-width: 0; }
+
+    /* --- cmd-content: ensure no horizontal overflow leaks --- */
+    .cmd-content { overflow-x: hidden; }
+
+    /* --- AI console: flex properly on all screen sizes --- */
+    .ai-console-terminal { overflow: hidden; }
+    .ai-terminal-log { overflow-y: auto; flex: 1; }
+
+    /* --- Test report row: allow wrapping on narrow screens --- */
+    .test-report-row span:last-child { flex-shrink: 0; }
+
   </style>
 </head>
 <body>
 
 <div class="command-layout">
   
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
   <!-- SIDEBAR NAVIGATION -->
   <aside class="cmd-sidebar" id="appSidebar">
     <a href="#" class="brand-header-box" onclick="navigate('dashboard'); return false;">
@@ -1364,7 +1688,7 @@
     <!-- COMMAND TOPBAR -->
     <header class="cmd-topbar">
       <div class="topbar-left">
-        <button class="mobile-nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+        <button class="mobile-nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation" aria-expanded="false" aria-controls="appSidebar">
           <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="topbar-title-meta">
@@ -1394,15 +1718,15 @@
         </button>
 
         <!-- Automated Self-Test Runner Trigger -->
-        <button class="cmd-btn cmd-btn-primary" onclick="openTestModal()" title="Run Automated Verification Test Suite">
+        <button class="cmd-btn cmd-btn-primary" onclick="openTestModal()" title="Run Automated Verification Test Suite" aria-label="Run automated tests">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          RUN TESTS
+          <span class="btn-label-text">RUN TESTS</span>
         </button>
 
         <!-- Master Simulation Reset -->
-        <button class="cmd-btn cmd-btn-danger" onclick="resetSimulation()" title="Reset All Simulation States to Baseline Nominal">
+        <button class="cmd-btn cmd-btn-danger" onclick="resetSimulation()" title="Reset All Simulation States to Baseline Nominal" aria-label="Reset simulation">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-          RESET
+          <span class="btn-label-text">RESET</span>
         </button>
       </div>
     </header>
@@ -1762,7 +2086,7 @@
         </div>
 
         <div class="flow-schematic-stage">
-          <div style="position:relative; width:100%; height:520px;" id="flowSchematicArea">
+          <div style="position:relative; width:100%; min-width:700px; min-height:480px;" id="flowSchematicArea">
             <svg class="flow-canvas-svg" id="flowSvg">
               <path id="path-solar" class="flow-wire-underlay" />
               <path id="path-solar-anim" class="flow-wire-active" stroke="#f59e0b" />
@@ -4212,14 +4536,21 @@ function navigate(pageId) {
   }
 
   const sidebar = document.getElementById('appSidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
   if (sidebar && sidebar.classList.contains('open')) {
     sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('visible');
   }
 }
 
 function toggleSidebar() {
   const sidebar = document.getElementById('appSidebar');
-  if (sidebar) sidebar.classList.toggle('open');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const btn = document.querySelector('.mobile-nav-toggle');
+  if (!sidebar) return;
+  const isOpen = sidebar.classList.toggle('open');
+  if (backdrop) backdrop.classList.toggle('visible', isOpen);
+  if (btn) btn.setAttribute('aria-expanded', String(isOpen));
 }
 
 // ============================================================================
